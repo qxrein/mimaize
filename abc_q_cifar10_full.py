@@ -20,8 +20,12 @@ RESEARCH_NOTES — design choices
 - **Baselines**: Uniform 2/4/8, random search (same eval budget as first ABC run), Hansen CMA-ES
   on continuous codes projected to {2,4,8}.
 - **Figures / stats**: See ``abc_q_plots.py`` and ``abc_q_stats.py``; images go under ``results/``.
-- **Defaults**: ``FULL_DATASET=False``, ``N_SEEDS=1`` for a fast smoke test; set ``FULL_DATASET=True``,
-  ``N_SEEDS=3`` for paper runs (~hours). Override output dir with env ``ABC_Q_RESULTS_DIR``.
+- **Backbone**: ``BACKBONE="resnet20"`` (CIFAR ResNet-20 stack) or ``"mobilenetv2"`` (ImageNet-style
+  MobileNetV2 on 32×32, train from scratch). Nested MobileNet uses **unique layer names** for quant targets.
+- **Seeds**: Use ``N_SEEDS`` and ``SEEDS`` (length ≥ 9 for strong stats). Full MobileNet + many seeds is
+  overnight-class; set ``PRETRAIN_EPOCHS_OVERRIDE`` (e.g. 55–70) and ``N_SEEDS=1`` for a ~2h dry run.
+- **Defaults**: ``FULL_DATASET=False``, ``N_SEEDS=1`` for smoke; research preset below uses MobileNet + 10 seeds.
+  Override output dir with env ``ABC_Q_RESULTS_DIR``.
 """
 
 from __future__ import annotations
@@ -44,6 +48,7 @@ from tensorflow.keras.layers import (
     BatchNormalization,
     Conv2D,
     Dense,
+    DepthwiseConv2D,
     Dropout,
     GlobalAveragePooling2D,
     Input,
@@ -55,9 +60,12 @@ from abc_q_plots import DEFAULT_RESULTS_DIR, save_all_paper_figures
 from abc_q_stats import paired_mean_std, print_paper_table, wilcoxon_paired_pvalue
 
 # --- Publication toggles ---
+BACKBONE = "mobilenetv2"
+MOBILENET_ALPHA = 1.0
 FULL_DATASET = True
-N_SEEDS = 3
-SEEDS = [42, 123, 456]
+N_SEEDS = 10
+SEEDS = [42, 123, 456, 789, 1024, 2048, 3141, 2718, 9001, 4242]
+PRETRAIN_EPOCHS_OVERRIDE: Optional[int] = None
 QUANTIZE_ACTIVATIONS = True
 REAL_BOPS = True
 
@@ -113,13 +121,16 @@ def set_seed(seed: int) -> None:
 
 
 def get_experiment_config() -> Dict[str, Any]:
-    """Training and search hyperparameters from ``FULL_DATASET``."""
+    """Training and search hyperparameters from ``FULL_DATASET`` and ``BACKBONE``."""
     if FULL_DATASET:
+        epochs = 90 if BACKBONE == "mobilenetv2" else 100
+        if PRETRAIN_EPOCHS_OVERRIDE is not None:
+            epochs = int(PRETRAIN_EPOCHS_OVERRIDE)
         return {
             "train_samples": 49000,
             "calib_samples": 1000,
             "test_samples": 10000,
-            "pretrain_epochs": 100,
+            "pretrain_epochs": epochs,
             "finetune_epochs": 8,
             "abc_cycles": 20,
             "num_bees": 16,
@@ -128,12 +139,16 @@ def get_experiment_config() -> Dict[str, Any]:
             "pareto_random_samples": 500,
             "use_sensitivity_prior": True,
             "run_sensitivity_ablation": True,
+            "backbone": BACKBONE,
         }
+    epochs_q = 45
+    if PRETRAIN_EPOCHS_OVERRIDE is not None:
+        epochs_q = int(PRETRAIN_EPOCHS_OVERRIDE)
     return {
         "train_samples": 5000,
         "calib_samples": 1000,
         "test_samples": 2000,
-        "pretrain_epochs": 45,
+        "pretrain_epochs": epochs_q,
         "finetune_epochs": 8,
         "abc_cycles": 20,
         "num_bees": 16,
@@ -142,6 +157,7 @@ def get_experiment_config() -> Dict[str, Any]:
         "pareto_random_samples": 500,
         "use_sensitivity_prior": True,
         "run_sensitivity_ablation": True,
+        "backbone": BACKBONE,
     }
 
 
@@ -235,11 +251,11 @@ def _resnet_block(
     return out
 
 
-def build_model(
+def build_resnet20_cifar(
     num_classes: int = 10,
     learning_rate: Union[float, tf.keras.optimizers.schedules.LearningRateSchedule] = 1e-3,
 ) -> Model:
-    """ResNet-20–style CIFAR backbone (3+2+2 blocks at 16/32/64 filters) + GAP + dense logits + softmax."""
+    """ResNet-20–style CIFAR backbone + GAP + dense logits + softmax."""
     reg = l2(WEIGHT_DECAY)
     inputs = Input(shape=(32, 32, 3))
     x = Conv2D(16, 3, padding="same", use_bias=False, kernel_regularizer=reg)(inputs)
@@ -266,20 +282,68 @@ def build_model(
     return model
 
 
-def get_quantizable_layers(model: Model) -> List[int]:
-    """Layer indices with Conv2D or Dense weights (quantization targets)."""
-    indices: List[int] = []
-    for idx, layer in enumerate(model.layers):
-        if isinstance(layer, (tf.keras.layers.Conv2D, tf.keras.layers.Dense)) and layer.get_weights():
-            indices.append(idx)
-    return indices
+def build_mobilenetv2_cifar(
+    num_classes: int = 10,
+    learning_rate: Union[float, tf.keras.optimizers.schedules.LearningRateSchedule] = 1e-3,
+) -> Model:
+    """MobileNetV2 (32×32, no ImageNet weights) + GAP + dense logits + softmax."""
+    base = tf.keras.applications.MobileNetV2(
+        input_shape=(32, 32, 3),
+        include_top=False,
+        weights=None,
+        pooling=None,
+        alpha=float(MOBILENET_ALPHA),
+    )
+    x = GlobalAveragePooling2D()(base.output)
+    x = Dropout(CLASSIFIER_DROPOUT)(x)
+    logits = Dense(num_classes, activation=None, kernel_regularizer=l2(WEIGHT_DECAY))(x)
+    outputs = Activation("softmax")(logits)
+    model = Model(base.input, outputs)
+    model.compile(
+        optimizer=Adam(learning_rate=learning_rate),
+        loss=sparse_cce_with_label_smoothing(num_classes, LABEL_SMOOTHING),
+        metrics=["accuracy"],
+    )
+    return model
 
 
-def layer_param_counts(model: Model, quantizable_layers: Sequence[int]) -> np.ndarray:
+def build_model(
+    num_classes: int = 10,
+    learning_rate: Union[float, tf.keras.optimizers.schedules.LearningRateSchedule] = 1e-3,
+) -> Model:
+    """Dispatch to ResNet-20 or MobileNetV2 CIFAR model (``BACKBONE``)."""
+    if BACKBONE == "mobilenetv2":
+        return build_mobilenetv2_cifar(num_classes, learning_rate)
+    if BACKBONE == "resnet20":
+        return build_resnet20_cifar(num_classes, learning_rate)
+    raise ValueError(f"Unknown BACKBONE={BACKBONE!r}; use 'resnet20' or 'mobilenetv2'.")
+
+
+def _flatten_quantizable_layers(model: Model) -> List[tf.keras.layers.Layer]:
+    """Depth-first Conv2D / DepthwiseConv2D / Dense layers with weights (handles nested submodels)."""
+    acc: List[tf.keras.layers.Layer] = []
+    for layer in model.layers:
+        if isinstance(layer, Model):
+            acc.extend(_flatten_quantizable_layers(layer))
+            continue
+        if isinstance(layer, (Conv2D, DepthwiseConv2D, Dense)) and layer.get_weights():
+            acc.append(layer)
+    return acc
+
+
+def get_quantizable_layer_names(model: Model) -> List[str]:
+    """Unique layer names for quantization (stable across fresh ``build_model()`` of same backbone)."""
+    names = [L.name for L in _flatten_quantizable_layers(model)]
+    if len(names) != len(set(names)):
+        raise ValueError(f"Duplicate quantizable layer names: {names}")
+    return names
+
+
+def layer_param_counts(model: Model, quant_names: Sequence[str]) -> np.ndarray:
     """Parameter count per quantizable layer (for mem_ratio)."""
     counts: List[float] = []
-    for idx in quantizable_layers:
-        layer = model.layers[idx]
+    for name in quant_names:
+        layer = model.get_layer(name)
         counts.append(float(sum(np.prod(w.shape) for w in layer.get_weights())))
     return np.array(counts, dtype=np.float64)
 
@@ -298,25 +362,25 @@ def quantize_array_minmax(weights: np.ndarray, bits: int) -> np.ndarray:
 
 def apply_bit_config(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     bit_config: np.ndarray,
     original_weights: Dict[int, List[np.ndarray]],
 ) -> None:
     """Write min-max quantized weights from ``original_weights`` into the live model."""
-    for layer_idx, bits in zip(quantizable_layers, bit_config):
-        layer = model.layers[layer_idx]
-        q_weights = [quantize_array_minmax(w, int(bits)) for w in original_weights[layer_idx]]
+    for i, bits in enumerate(bit_config):
+        layer = model.get_layer(quant_names[i])
+        q_weights = [quantize_array_minmax(w, int(bits)) for w in original_weights[i]]
         layer.set_weights(q_weights)
 
 
 def restore_original_weights(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     original_weights: Dict[int, List[np.ndarray]],
 ) -> None:
     """Restore float weights for quantizable layers."""
-    for layer_idx in quantizable_layers:
-        model.layers[layer_idx].set_weights(original_weights[layer_idx])
+    for i, name in enumerate(quant_names):
+        model.get_layer(name).set_weights(original_weights[i])
 
 
 def _spatial_hw_from_layer_output(layer: tf.keras.layers.Layer) -> Tuple[int, int]:
@@ -331,16 +395,21 @@ def _spatial_hw_from_layer_output(layer: tf.keras.layers.Layer) -> Tuple[int, in
     return int(dims[1]), int(dims[2])
 
 
-def build_layer_bops_specs(model: Model, quantizable_layers: Sequence[int]) -> List[Dict[str, Any]]:
+def build_layer_bops_specs(model: Model, quant_names: Sequence[str]) -> List[Dict[str, Any]]:
     """Per-layer shapes for MAC-based BOPs. Uses kernel weights + output tensor (Keras 3-safe)."""
     specs: List[Dict[str, Any]] = []
-    for idx in quantizable_layers:
-        layer = model.layers[idx]
+    for name in quant_names:
+        layer = model.get_layer(name)
         if isinstance(layer, Conv2D):
             w = layer.get_weights()[0]
             kh, kw, cin, cout = int(w.shape[0]), int(w.shape[1]), int(w.shape[2]), int(w.shape[3])
             oh, ow = _spatial_hw_from_layer_output(layer)
             specs.append({"type": "conv", "kh": kh, "kw": kw, "cin": cin, "cout": cout, "h": oh, "w": ow})
+        elif isinstance(layer, DepthwiseConv2D):
+            w = layer.get_weights()[0]
+            kh, kw, cin, dm = int(w.shape[0]), int(w.shape[1]), int(w.shape[2]), int(w.shape[3])
+            oh, ow = _spatial_hw_from_layer_output(layer)
+            specs.append({"type": "depthwise", "kh": kh, "kw": kw, "cin": cin, "dm": dm, "h": oh, "w": ow})
         elif isinstance(layer, Dense):
             w = layer.get_weights()[0]
             in_dim, out_dim = int(w.shape[0]), int(w.shape[1])
@@ -356,6 +425,8 @@ def _layer_mac_bops(spec: Dict[str, Any], bw: int, ba: int) -> float:
         return (
             bw_i * ba_i * spec["kh"] * spec["kw"] * spec["cin"] * spec["cout"] * spec["h"] * spec["w"]
         )
+    if spec["type"] == "depthwise":
+        return bw_i * ba_i * spec["kh"] * spec["kw"] * spec["cin"] * spec["dm"] * spec["h"] * spec["w"]
     return float(bw_i * ba_i * spec["in"] * spec["out"])
 
 
@@ -415,16 +486,16 @@ def quantize_act_tf(x: tf.Tensor, amin: float, amax: float, bits: int) -> tf.Ten
 
 def collect_activation_stats(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     x_calib: np.ndarray,
     y_calib: np.ndarray,
     batch_size: int = 128,
 ) -> Dict[int, Tuple[float, float]]:
     """Global min/max of each quantizable layer output on calibration data (float model)."""
-    outs = [model.layers[i].output for i in quantizable_layers]
+    outs = [model.get_layer(name).output for name in quant_names]
     multi = Model(inputs=model.input, outputs=outs)
     ds = make_dataset(x_calib, y_calib, batch_size=batch_size, shuffle=False)
-    n = len(quantizable_layers)
+    n = len(quant_names)
     mins = np.full(n, np.inf, dtype=np.float64)
     maxs = np.full(n, -np.inf, dtype=np.float64)
     for batch_x, _ in ds:
@@ -435,12 +506,12 @@ def collect_activation_stats(
             t = a.numpy()
             mins[j] = min(mins[j], float(np.min(t)))
             maxs[j] = max(maxs[j], float(np.max(t)))
-    return {quantizable_layers[j]: (float(mins[j]), float(maxs[j])) for j in range(n)}
+    return {j: (float(mins[j]), float(maxs[j])) for j in range(n)}
 
 
 def _apply_act_quant_patches(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     bit_config: np.ndarray,
     activation_stats: Dict[int, Tuple[float, float]],
     quantize_activations: bool,
@@ -449,10 +520,10 @@ def _apply_act_quant_patches(
     handles: List[Tuple[Any, Any]] = []
     if not quantize_activations or not activation_stats:
         return handles
-    for _li, idx in enumerate(quantizable_layers):
-        layer = model.layers[idx]
-        amin, amax = activation_stats[idx]
-        bits = int(bit_config[_li])
+    for li, name in enumerate(quant_names):
+        layer = model.get_layer(name)
+        amin, amax = activation_stats[li]
+        bits = int(bit_config[li])
         orig_call = layer.call
 
         def _patched(
@@ -479,7 +550,7 @@ def _restore_act_quant_patches(handles: Sequence[Tuple[Any, Any]]) -> None:
 
 def evaluate_bit_config(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     bit_config: np.ndarray,
     x_calib: np.ndarray,
     y_calib: np.ndarray,
@@ -500,14 +571,14 @@ def evaluate_bit_config(
     mem_ratio = num / den if den > 0 else 1.0
 
     handles = _apply_act_quant_patches(
-        model, quantizable_layers, bit_config, activation_stats or {}, quantize_activations
+        model, quant_names, bit_config, activation_stats or {}, quantize_activations
     )
     try:
-        apply_bit_config(model, quantizable_layers, bit_config, original_weights)
+        apply_bit_config(model, quant_names, bit_config, original_weights)
         calib_ds = make_dataset(x_calib, y_calib, batch_size=128, shuffle=False)
         _, acc = model.evaluate(calib_ds, verbose=0)
     finally:
-        restore_original_weights(model, quantizable_layers, original_weights)
+        restore_original_weights(model, quant_names, original_weights)
         _restore_act_quant_patches(handles)
 
     return float(acc), float(bops_wa), float(bops_wo), float(mem_ratio)
@@ -520,7 +591,7 @@ def compute_fitness(acc: float, bops_ratio: float, mem_ratio: float) -> float:
 
 def compute_layer_sensitivity(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     x_calib: np.ndarray,
     y_calib: np.ndarray,
 ) -> np.ndarray:
@@ -538,8 +609,8 @@ def compute_layer_sensitivity(
     grad_map = {id(v): g for v, g in zip(train_vars, grads)}
 
     sensitivities: List[float] = []
-    for layer_idx in quantizable_layers:
-        layer = model.layers[layer_idx]
+    for name in quant_names:
+        layer = model.get_layer(name)
         mags: List[float] = []
         for var in layer.trainable_weights:
             g = grad_map.get(id(var))
@@ -604,7 +675,7 @@ def format_bits(config: np.ndarray) -> str:
 
 def run_abc_q(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     x_calib: np.ndarray,
     y_calib: np.ndarray,
     param_counts: np.ndarray,
@@ -619,8 +690,10 @@ def run_abc_q(
     convergence: Optional[Dict[str, List[float]]] = None,
 ) -> Tuple[SearchResult, int]:
     """ABC loop: employed bees, onlookers (roulette), scouts; return best and number of evals."""
-    original_weights = {idx: copy.deepcopy(model.layers[idx].get_weights()) for idx in quantizable_layers}
-    num_layers = len(quantizable_layers)
+    original_weights = {
+        i: copy.deepcopy(model.get_layer(quant_names[i]).get_weights()) for i in range(len(quant_names))
+    }
+    num_layers = len(quant_names)
     foods = initialize_food_sources(num_bees, num_layers, sensitivity, use_sensitivity_prior)
     trials = np.zeros(num_bees, dtype=np.int32)
 
@@ -634,7 +707,7 @@ def run_abc_q(
     def _eval(cfg: np.ndarray) -> Tuple[float, float, float, float]:
         return evaluate_bit_config(
             model,
-            quantizable_layers,
+            quant_names,
             cfg,
             x_calib,
             y_calib,
@@ -733,13 +806,13 @@ def run_abc_q(
             f"bops_wa={best.bops_weight_act:.4f} scouts={scouts_triggered}"
         )
 
-    restore_original_weights(model, quantizable_layers, original_weights)
+    restore_original_weights(model, quant_names, original_weights)
     return best, eval_count
 
 
 def evaluate_baseline_config(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     bit_value: int,
     x_calib: np.ndarray,
     y_calib: np.ndarray,
@@ -749,11 +822,11 @@ def evaluate_baseline_config(
     quantize_activations: bool = False,
 ) -> SearchResult:
     """Uniform bit-width across all quantizable layers."""
-    bit_config = np.full(len(quantizable_layers), bit_value, dtype=np.int32)
-    ow = {idx: copy.deepcopy(model.layers[idx].get_weights()) for idx in quantizable_layers}
+    bit_config = np.full(len(quant_names), bit_value, dtype=np.int32)
+    ow = {i: copy.deepcopy(model.get_layer(quant_names[i]).get_weights()) for i in range(len(quant_names))}
     acc, bwa, bwo, mem = evaluate_bit_config(
         model,
-        quantizable_layers,
+        quant_names,
         bit_config,
         x_calib,
         y_calib,
@@ -776,7 +849,7 @@ def evaluate_baseline_config(
 
 def run_random_search(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     x_calib: np.ndarray,
     y_calib: np.ndarray,
     param_counts: np.ndarray,
@@ -787,8 +860,10 @@ def run_random_search(
     quantize_activations: bool = False,
 ) -> SearchResult:
     """Uniform random mixed precision with the same sensitive-layer floor as ABC init."""
-    original_weights = {idx: copy.deepcopy(model.layers[idx].get_weights()) for idx in quantizable_layers}
-    num_layers = len(quantizable_layers)
+    original_weights = {
+        i: copy.deepcopy(model.get_layer(quant_names[i]).get_weights()) for i in range(len(quant_names))
+    }
+    num_layers = len(quant_names)
     best: Optional[SearchResult] = None
     threshold = np.quantile(sensitivity, 0.75)
     sensitive_mask = sensitivity >= threshold
@@ -800,7 +875,7 @@ def run_random_search(
                 config[d] = np.random.choice([4, 8])
         acc, bwa, bwo, mem = evaluate_bit_config(
             model,
-            quantizable_layers,
+            quant_names,
             config,
             x_calib,
             y_calib,
@@ -822,14 +897,14 @@ def run_random_search(
         if best is None or cand.fitness > best.fitness:
             best = cand
 
-    restore_original_weights(model, quantizable_layers, original_weights)
+    restore_original_weights(model, quant_names, original_weights)
     assert best is not None
     return best
 
 
 def collect_random_search_points(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     x_calib: np.ndarray,
     y_calib: np.ndarray,
     param_counts: np.ndarray,
@@ -840,8 +915,10 @@ def collect_random_search_points(
     quantize_activations: bool = False,
 ) -> List[Tuple[float, float]]:
     """Sample random configs; list of (bops_wa, accuracy) for Pareto scatter."""
-    original_weights = {idx: copy.deepcopy(model.layers[idx].get_weights()) for idx in quantizable_layers}
-    num_layers = len(quantizable_layers)
+    original_weights = {
+        i: copy.deepcopy(model.get_layer(quant_names[i]).get_weights()) for i in range(len(quant_names))
+    }
+    num_layers = len(quant_names)
     threshold = np.quantile(sensitivity, 0.75)
     sensitive_mask = sensitivity >= threshold
     points: List[Tuple[float, float]] = []
@@ -852,7 +929,7 @@ def collect_random_search_points(
                 config[d] = np.random.choice([4, 8])
         acc, bwa, _bwo, mem = evaluate_bit_config(
             model,
-            quantizable_layers,
+            quant_names,
             config,
             x_calib,
             y_calib,
@@ -864,7 +941,7 @@ def collect_random_search_points(
         )
         _ = mem
         points.append((float(bwa), float(acc)))
-    restore_original_weights(model, quantizable_layers, original_weights)
+    restore_original_weights(model, quant_names, original_weights)
     return points
 
 
@@ -876,7 +953,7 @@ def bits_from_continuous(z: np.ndarray) -> np.ndarray:
 
 def run_cmaes_baseline(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     x_calib: np.ndarray,
     y_calib: np.ndarray,
     param_counts: np.ndarray,
@@ -888,8 +965,10 @@ def run_cmaes_baseline(
     convergence: Optional[Dict[str, List[float]]] = None,
 ) -> SearchResult:
     """CMA-ES in [0,2]^L with projection to discrete bits; minimize negative fitness."""
-    original_weights = {idx: copy.deepcopy(model.layers[idx].get_weights()) for idx in quantizable_layers}
-    dim = len(quantizable_layers)
+    original_weights = {
+        i: copy.deepcopy(model.get_layer(quant_names[i]).get_weights()) for i in range(len(quant_names))
+    }
+    dim = len(quant_names)
     best: Optional[SearchResult] = None
     n_eval = 0
 
@@ -899,7 +978,7 @@ def run_cmaes_baseline(
         config = bits_from_continuous(z)
         acc, bwa, bwo, mem = evaluate_bit_config(
             model,
-            quantizable_layers,
+            quant_names,
             config,
             x_calib,
             y_calib,
@@ -938,19 +1017,19 @@ def run_cmaes_baseline(
     es = cma.CMAEvolutionStrategy(np.ones(dim), 0.6, opts)
     es.optimize(objective)
 
-    restore_original_weights(model, quantizable_layers, original_weights)
+    restore_original_weights(model, quant_names, original_weights)
     assert best is not None
     return best
 
 
 def apply_best_config_permanently(
     model: Model,
-    quantizable_layers: Sequence[int],
+    quant_names: Sequence[str],
     bit_config: np.ndarray,
 ) -> None:
     """Write min-max quantized weights in-place (weights only; no activation wrappers)."""
-    for layer_idx, bits in zip(quantizable_layers, bit_config):
-        layer = model.layers[layer_idx]
+    for name, bits in zip(quant_names, bit_config):
+        layer = model.get_layer(name)
         weights = layer.get_weights()
         layer.set_weights([quantize_array_minmax(w, int(bits)) for w in weights])
 
@@ -971,8 +1050,8 @@ def main() -> None:
     os.makedirs(results_dir, exist_ok=True)
 
     print(
-        f"FULL_DATASET={FULL_DATASET} N_SEEDS={N_SEEDS} QUANTIZE_ACTIVATIONS={QUANTIZE_ACTIVATIONS} "
-        f"REAL_BOPS={REAL_BOPS} seeds={seeds}"
+        f"BACKBONE={BACKBONE} FULL_DATASET={FULL_DATASET} N_SEEDS={N_SEEDS} "
+        f"QUANTIZE_ACTIVATIONS={QUANTIZE_ACTIVATIONS} REAL_BOPS={REAL_BOPS} seeds={seeds}"
     )
 
     data = load_cifar10_splits(config)
@@ -999,26 +1078,27 @@ def main() -> None:
     print(f"Float test accuracy: {test_acc:.4f}")
 
     float_weights = copy.deepcopy(model.get_weights())
-    quantizable_layers = get_quantizable_layers(model)
-    param_counts = layer_param_counts(model, quantizable_layers)
-    layer_bops_specs = build_layer_bops_specs(model, quantizable_layers)
+    quant_names = get_quantizable_layer_names(model)
+    print(f"Quantizable layers: {len(quant_names)} | pretrain_epochs={config['pretrain_epochs']}")
+    param_counts = layer_param_counts(model, quant_names)
+    layer_bops_specs = build_layer_bops_specs(model, quant_names)
 
     act_stats: Optional[Dict[int, Tuple[float, float]]] = None
     if QUANTIZE_ACTIVATIONS:
-        act_stats = collect_activation_stats(model, quantizable_layers, data["x_calib"], data["y_calib"])
+        act_stats = collect_activation_stats(model, quant_names, data["x_calib"], data["y_calib"])
 
-    sensitivity = compute_layer_sensitivity(model, quantizable_layers, data["x_calib"], data["y_calib"])
+    sensitivity = compute_layer_sensitivity(model, quant_names, data["x_calib"], data["y_calib"])
 
     uniform8 = evaluate_baseline_config(
-        model, quantizable_layers, 8, data["x_calib"], data["y_calib"], param_counts,
+        model, quant_names, 8, data["x_calib"], data["y_calib"], param_counts,
         layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS,
     )
     uniform4 = evaluate_baseline_config(
-        model, quantizable_layers, 4, data["x_calib"], data["y_calib"], param_counts,
+        model, quant_names, 4, data["x_calib"], data["y_calib"], param_counts,
         layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS,
     )
     uniform2 = evaluate_baseline_config(
-        model, quantizable_layers, 2, data["x_calib"], data["y_calib"], param_counts,
+        model, quant_names, 2, data["x_calib"], data["y_calib"], param_counts,
         layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS,
     )
 
@@ -1051,13 +1131,13 @@ def main() -> None:
         conv_abc: Dict[str, List[float]] = {}
         if run_ablate:
             abc_best, abc_budget = run_abc_q(
-                model, quantizable_layers, data["x_calib"], data["y_calib"], param_counts, sensitivity,
+                model, quant_names, data["x_calib"], data["y_calib"], param_counts, sensitivity,
                 config["num_bees"], config["abc_cycles"], config["scout_limit"],
                 layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS, True, conv_abc,
             )
         else:
             abc_best, abc_budget = run_abc_q(
-                model, quantizable_layers, data["x_calib"], data["y_calib"], param_counts, sensitivity,
+                model, quant_names, data["x_calib"], data["y_calib"], param_counts, sensitivity,
                 config["num_bees"], config["abc_cycles"], config["scout_limit"],
                 layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS, use_prior_cfg, conv_abc,
             )
@@ -1073,7 +1153,7 @@ def main() -> None:
             set_seed(s)
             model.set_weights(copy.deepcopy(float_weights))
             abc_ablate, _ = run_abc_q(
-                model, quantizable_layers, data["x_calib"], data["y_calib"], param_counts, sensitivity,
+                model, quant_names, data["x_calib"], data["y_calib"], param_counts, sensitivity,
                 config["num_bees"], config["abc_cycles"], config["scout_limit"],
                 layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS, False, None,
             )
@@ -1086,7 +1166,7 @@ def main() -> None:
         set_seed(s)
         model.set_weights(copy.deepcopy(float_weights))
         random_best = run_random_search(
-            model, quantizable_layers, data["x_calib"], data["y_calib"], param_counts, sensitivity,
+            model, quant_names, data["x_calib"], data["y_calib"], param_counts, sensitivity,
             int(shared_budget), layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS,
         )
         rand_accs.append(float(random_best.accuracy))
@@ -1097,7 +1177,7 @@ def main() -> None:
         model.set_weights(copy.deepcopy(float_weights))
         conv_cma: Dict[str, List[float]] = {}
         cma_best = run_cmaes_baseline(
-            model, quantizable_layers, data["x_calib"], data["y_calib"], param_counts,
+            model, quant_names, data["x_calib"], data["y_calib"], param_counts,
             int(shared_budget), layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS, s, conv_cma,
         )
         cma_accs.append(float(cma_best.accuracy))
@@ -1112,7 +1192,7 @@ def main() -> None:
             cma_conv_plot = conv_cma
             n_sc = int(config.get("pareto_random_samples", max(200, min(500, int(shared_budget)))))
             pareto_pts = collect_random_search_points(
-                model, quantizable_layers, data["x_calib"], data["y_calib"], param_counts, sensitivity,
+                model, quant_names, data["x_calib"], data["y_calib"], param_counts, sensitivity,
                 n_sc, layer_bops_specs, act_stats, QUANTIZE_ACTIVATIONS,
             )
 
@@ -1216,7 +1296,8 @@ def main() -> None:
         loss=sparse_cce_with_label_smoothing(10, LABEL_SMOOTHING),
         metrics=["accuracy"],
     )
-    apply_best_config_permanently(final_model, quantizable_layers, last_abc.bit_config)
+    quant_names_final = get_quantizable_layer_names(final_model)
+    apply_best_config_permanently(final_model, quant_names_final, last_abc.bit_config)
     final_model.fit(train_ds, epochs=config["finetune_epochs"], verbose=2)
     _, final_acc = final_model.evaluate(test_ds, verbose=0)
     print(f"Test accuracy after quant + fine-tune (last-seed ABC): {final_acc:.4f}")
