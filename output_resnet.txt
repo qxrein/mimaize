@@ -1,0 +1,497 @@
+[ABC 16] best fit=0.7513 acc=0.7870 bops_wa=0.5296 scouts=0
+[ABC 17] best fit=0.7513 acc=0.7870 bops_wa=0.5296 scouts=0
+[ABC 18] best fit=0.7562 acc=0.7910 bops_wa=0.5145 scouts=0
+[ABC 19] best fit=0.7562 acc=0.7910 bops_wa=0.5145 scouts=0
+[ABC 20] best fit=0.7562 acc=0.7910 bops_wa=0.5145 scouts=0
+
+Last-seed ABC bits: [8, 8, 8, 4, 8, 8, 8, 4, 8, 8, 4, 8, 4, 4, 4, 8, 4, 8, 8, 8, 4, 4, 4, 4, 4, 8, 8, 2, 8, 2, 8, 8, 2, 4, 8, 4, 4, 2, 4, 4, 4, 4, 2, 4, 2, 8, 4, 2, 4, 4, 2, 4, 2]
+
+Method          Accuracy (%)    BOPs ratio      Avg bits        Acc/BOPs        p-value vs ABC-Q
+----------------------------------------------------------------------------------------------------
+Uniform 8-bit   83.4    1.000   8.00    0.8     —
+Uniform 4-bit   74.3    0.250   4.00    3.0     —
+Uniform 2-bit   11.4    0.062   2.00    1.8     —
+Random Search   76.6 ± 1.1      0.519 ± 0.061   5.26    1.5     0.002**
+CMA-ES (Hansen) 82.3 ± 0.6      0.568 ± 0.053   4.66    1.5     0.002**
+ABC-Q (no prior)        73.8 ± 3.6      0.485 ± 0.065   3.61    1.5     0.004**
+ABC-Q (ours)    79.1 ± 0.7      0.529 ± 0.040   3.68    1.5     —
+Sensitivity prior gain (calib acc, pp): 5.23 ± 4.22 (n=10).
+Wilcoxon vs ABC-Q: Random p=0.0020**; CMA-ES p=0.0020**.
+Figures saved under: /home/ubuntu/mimaize/results
+Epoch 1/8
+I0000 00:00:1775319344.937989  172953 dot_merger.cc:481] Merging Dots in computation: a_inference_one_step_on_data_5015490__.330
+I0000 00:00:1775319357.649179  172950 dot_merger.cc:481] Merging Dots in computation: a_inference_one_step_on_data_5015490__.330
+383/383 - 33s - 85ms/step - accuracy: 0.8444 - loss: 0.6382
+Epoch 2/8
+383/383 - 3s - 9ms/step - accuracy: 0.8450 - loss: 0.6356
+Epoch 3/8
+383/383 - 3s - 9ms/step - accuracy: 0.8524 - loss: 0.6174
+Epoch 4/8
+383/383 - 3s - 9ms/step - accuracy: 0.8542 - loss: 0.6119
+Epoch 5/8
+383/383 - 3s - 9ms/step - accuracy: 0.8578 - loss: 0.6053
+Epoch 6/8
+383/383 - 3s - 9ms/step - accuracy: 0.8577 - loss: 0.6018
+Epoch 7/8
+383/383 - 3s - 9ms/step - accuracy: 0.8588 - loss: 0.5957
+Epoch 8/8
+383/383 - 3s - 9ms/step - accuracy: 0.8608 - loss: 0.5924
+Test accuracy after quant + fine-tune (last-seed ABC): 0.8237
+(venv) ubuntu@0194-dsm2-dla100sxm-prxmx70185:~/mimaize$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   results/bit_distribution.png
+        modified:   results/comparison_acc_per_bops.png
+        modified:   results/comparison_accuracy.png
+        modified:   results/comparison_bops.png
+        modified:   results/comparison_scatter_mean_std.png
+        modified:   results/convergence_abc_vs_cma.png
+        modified:   results/pareto_calib_vs_bops.png
+
+no changes added to commit (use "git add" and/or "git commit -a")
+(venv) ubuntu@0194-dsm2-dla100sxm-prxmx70185:~/mimaize$ git add .
+(venv) ubuntu@0194-dsm2-dla100sxm-prxmx70185:~/mimaize$ git commit -m "new"
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'ubuntu@0194-dsm2-dla100sxm-prxmx70185.(none)')
+(venv) ubuntu@0194-dsm2-dla100sxm-prxmx70185:~/mimaize$ git pull
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 4 (delta 1), reused 4 (delta 1), pack-reused 0 (from 0)
+Unpacking objects: 100% (4/4), 16.35 KiB | 492.00 KiB/s, done.
+From github.com:qxrein/mimaize
+   032c6e1..a5e82df  main       -> origin/main
+Updating 032c6e1..a5e82df
+Fast-forward
+ abc_q_cifar10_resnet20.py | 1313 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ output.txt                |  429 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 1742 insertions(+)
+ create mode 100644 abc_q_cifar10_resnet20.py
+ create mode 100644 output.txt
+(venv) ubuntu@0194-dsm2-dla100sxm-prxmx70185:~/mimaize$ ls
+abc_q_cifar10_full.py      abc_q_llm_tiny.py            abc_q_plots.py  flake.nix   __pycache__            results
+abc_q_cifar10.py           abc_q_pareto_calib_full.png  abc_q_stats.py  main.py     quantize_one_model.py  venv
+abc_q_cifar10_resnet20.py  abc_q_pareto_calib.png       flake.lock      output.txt  requirements.txt
+(venv) ubuntu@0194-dsm2-dla100sxm-prxmx70185:~/mimaize$ python abc_q_cifar10_resnet20.py
+mkdir -p failed for path /home/ubuntu/.config/matplotlib: [Errno 13] Permission denied: '/home/ubuntu/.config/matplotlib'
+Matplotlib created a temporary cache directory at /tmp/matplotlib-x1vjts1s because there was an issue with the default path (/home/ubuntu/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1775319948.880565 1078091 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1775319948.923758 1078091 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1775319949.898813 1078091 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+BACKBONE=resnet20 FULL_DATASET=True N_SEEDS=3 QUANTIZE_ACTIVATIONS=True REAL_BOPS=True seeds=[42, 123, 456]
+I0000 00:00:1775319952.457186 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.518443 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.521996 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.526618 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.530027 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.533419 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.680149 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.680270 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.682471 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.684493 1078091 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775319952.686476 1078091 gpu_device.cc:2043] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 79196 MB memory:  -> device: 0, name: NVIDIA A100-SXM4-80GB, pci bus id: 0000:01:00.0, compute capability: 8.0
+Epoch 1/100
+I0000 00:00:1775319960.629556 1078157 service.cc:153] XLA service 0x7ee0dc057f10 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+(venv) ubuntu@0194-dsm2-dla100sxm-prxmx70185:~/mimaize$ python abc_q_cifar10_resnet20.py
+mkdir -p failed for path /home/ubuntu/.config/matplotlib: [Errno 13] Permission denied: '/home/ubuntu/.config/matplotlib'
+Matplotlib created a temporary cache directory at /tmp/matplotlib-jiw59m14 because there was an issue with the default path (/home/ubuntu/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR                                                                 I0000 00:00:1775320004.786488 1079966 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1775320004.829354 1079966 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1775320005.777038 1079966 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+BACKBONE=resnet20 FULL_DATASET=True N_SEEDS=3 QUANTIZE_ACTIVATIONS=True REAL_BOPS=True seeds=[42, 123, 456]
+I0000 00:00:1775320008.312224 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.372933 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.376492 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.381115 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.384521 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.387892 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.537588 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.537729 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.539946 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.541970 1079966 read_numa_node.cc:68] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node so this will  be massaged to NUMA node zero in some places. See more at https://github.com/torvalds/linux/blob/v6.0/Documentation/ABI/testing/sysfs-bus-pci#L344-L355
+I0000 00:00:1775320008.543959 1079966 gpu_device.cc:2043] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 79196 MB memory:  -> device: 0, name: NVIDIA A100-SXM4-80GB, pci bus id: 0000:01:00.0, compute capability: 8.0
+Epoch 1/100
+I0000 00:00:1775320016.419190 1080034 service.cc:153] XLA service 0x7b0d740591b0 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+I0000 00:00:1775320016.419214 1080034 service.cc:161]   StreamExecutor [0]: NVIDIA A100-SXM4-80GB, Compute Capability 8.0 (Driver: 12.6.0; Runtime: 12.9.0; Toolkit: 12.5.0; DNN: 9.20.0)
+I0000 00:00:1775320016.555592 1080034 dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+I0000 00:00:1775320017.507117 1080034 cuda_dnn.cc:461] Loaded cuDNN version 92000
+I0000 00:00:1775320017.648641 1080034 dot_merger.cc:481] Merging Dots in computation: a_inference_one_step_on_data_14874__.165
+I0000 00:00:1775320025.230237 1080034 device_compiler.h:208] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+I0000 00:00:1775320028.726660 1080033 dot_merger.cc:481] Merging Dots in computation: a_inference_one_step_on_data_14874__.165
+383/383 - 24s - 61ms/step - accuracy: 0.4050 - loss: 1.8593
+Epoch 2/100
+383/383 - 2s - 6ms/step - accuracy: 0.5821 - loss: 1.4564
+Epoch 3/100
+383/383 - 2s - 6ms/step - accuracy: 0.6598 - loss: 1.2721
+Epoch 4/100
+383/383 - 2s - 6ms/step - accuracy: 0.7092 - loss: 1.1570
+Epoch 5/100
+383/383 - 2s - 6ms/step - accuracy: 0.7404 - loss: 1.0771
+Epoch 6/100
+383/383 - 2s - 6ms/step - accuracy: 0.7647 - loss: 1.0182
+Epoch 7/100
+383/383 - 2s - 6ms/step - accuracy: 0.7817 - loss: 0.9727
+Epoch 8/100
+383/383 - 2s - 6ms/step - accuracy: 0.7949 - loss: 0.9421
+Epoch 9/100
+383/383 - 2s - 6ms/step - accuracy: 0.8051 - loss: 0.9133
+Epoch 10/100
+383/383 - 2s - 6ms/step - accuracy: 0.8121 - loss: 0.8934
+Epoch 11/100
+383/383 - 2s - 6ms/step - accuracy: 0.8185 - loss: 0.8770
+Epoch 12/100
+383/383 - 2s - 6ms/step - accuracy: 0.8290 - loss: 0.8561
+Epoch 13/100
+383/383 - 2s - 6ms/step - accuracy: 0.8346 - loss: 0.8406
+Epoch 14/100
+383/383 - 2s - 6ms/step - accuracy: 0.8401 - loss: 0.8259
+Epoch 15/100
+383/383 - 2s - 6ms/step - accuracy: 0.8427 - loss: 0.8172
+Epoch 16/100
+383/383 - 2s - 6ms/step - accuracy: 0.8473 - loss: 0.8115
+Epoch 17/100
+383/383 - 2s - 6ms/step - accuracy: 0.8498 - loss: 0.7950
+Epoch 18/100
+383/383 - 2s - 6ms/step - accuracy: 0.8558 - loss: 0.7843
+Epoch 19/100
+383/383 - 2s - 6ms/step - accuracy: 0.8579 - loss: 0.7801
+Epoch 20/100
+383/383 - 2s - 6ms/step - accuracy: 0.8636 - loss: 0.7658
+Epoch 21/100
+383/383 - 2s - 6ms/step - accuracy: 0.8657 - loss: 0.7593
+Epoch 22/100
+383/383 - 2s - 6ms/step - accuracy: 0.8684 - loss: 0.7519
+Epoch 23/100
+383/383 - 2s - 6ms/step - accuracy: 0.8719 - loss: 0.7398
+Epoch 24/100
+383/383 - 2s - 6ms/step - accuracy: 0.8737 - loss: 0.7367
+Epoch 25/100
+383/383 - 2s - 6ms/step - accuracy: 0.8774 - loss: 0.7281
+Epoch 26/100
+383/383 - 2s - 6ms/step - accuracy: 0.8779 - loss: 0.7266
+Epoch 27/100
+383/383 - 2s - 6ms/step - accuracy: 0.8828 - loss: 0.7158
+Epoch 28/100
+383/383 - 2s - 6ms/step - accuracy: 0.8831 - loss: 0.7097
+Epoch 29/100
+383/383 - 2s - 6ms/step - accuracy: 0.8842 - loss: 0.7086
+Epoch 30/100
+383/383 - 2s - 6ms/step - accuracy: 0.8864 - loss: 0.7023
+Epoch 31/100
+383/383 - 2s - 6ms/step - accuracy: 0.8895 - loss: 0.6971
+Epoch 32/100
+383/383 - 2s - 6ms/step - accuracy: 0.8913 - loss: 0.6874
+Epoch 33/100
+383/383 - 2s - 6ms/step - accuracy: 0.8908 - loss: 0.6866
+Epoch 34/100
+383/383 - 2s - 6ms/step - accuracy: 0.8955 - loss: 0.6737
+Epoch 35/100
+383/383 - 2s - 6ms/step - accuracy: 0.8962 - loss: 0.6757
+Epoch 36/100
+383/383 - 2s - 6ms/step - accuracy: 0.9000 - loss: 0.6656
+Epoch 37/100
+383/383 - 2s - 6ms/step - accuracy: 0.9008 - loss: 0.6626
+Epoch 38/100
+383/383 - 2s - 6ms/step - accuracy: 0.9020 - loss: 0.6570
+Epoch 39/100
+383/383 - 2s - 6ms/step - accuracy: 0.9036 - loss: 0.6533
+Epoch 40/100
+383/383 - 2s - 6ms/step - accuracy: 0.9065 - loss: 0.6467
+Epoch 41/100
+383/383 - 2s - 6ms/step - accuracy: 0.9086 - loss: 0.6392
+Epoch 42/100
+383/383 - 2s - 6ms/step - accuracy: 0.9097 - loss: 0.6335
+Epoch 43/100
+383/383 - 2s - 6ms/step - accuracy: 0.9119 - loss: 0.6273
+Epoch 44/100
+383/383 - 2s - 6ms/step - accuracy: 0.9140 - loss: 0.6210
+Epoch 45/100
+383/383 - 2s - 6ms/step - accuracy: 0.9144 - loss: 0.6198
+Epoch 46/100
+383/383 - 2s - 6ms/step - accuracy: 0.9149 - loss: 0.6148
+Epoch 47/100
+383/383 - 2s - 6ms/step - accuracy: 0.9188 - loss: 0.6068
+Epoch 48/100
+383/383 - 2s - 6ms/step - accuracy: 0.9204 - loss: 0.6007
+Epoch 49/100
+383/383 - 2s - 6ms/step - accuracy: 0.9214 - loss: 0.6000
+Epoch 50/100
+383/383 - 2s - 6ms/step - accuracy: 0.9238 - loss: 0.5912
+Epoch 51/100
+383/383 - 2s - 6ms/step - accuracy: 0.9236 - loss: 0.5861
+Epoch 52/100
+383/383 - 2s - 6ms/step - accuracy: 0.9256 - loss: 0.5827
+Epoch 53/100
+383/383 - 2s - 6ms/step - accuracy: 0.9283 - loss: 0.5762
+Epoch 54/100
+383/383 - 2s - 6ms/step - accuracy: 0.9291 - loss: 0.5722
+Epoch 55/100
+383/383 - 2s - 6ms/step - accuracy: 0.9320 - loss: 0.5648
+Epoch 56/100
+383/383 - 2s - 6ms/step - accuracy: 0.9331 - loss: 0.5609
+Epoch 57/100
+383/383 - 2s - 6ms/step - accuracy: 0.9337 - loss: 0.5555
+Epoch 58/100
+383/383 - 2s - 6ms/step - accuracy: 0.9380 - loss: 0.5467
+Epoch 59/100
+383/383 - 2s - 6ms/step - accuracy: 0.9382 - loss: 0.5438
+Epoch 60/100
+383/383 - 2s - 6ms/step - accuracy: 0.9396 - loss: 0.5404
+Epoch 61/100
+383/383 - 2s - 6ms/step - accuracy: 0.9420 - loss: 0.5307
+Epoch 62/100
+383/383 - 2s - 6ms/step - accuracy: 0.9416 - loss: 0.5291
+Epoch 63/100
+383/383 - 2s - 6ms/step - accuracy: 0.9449 - loss: 0.5221
+Epoch 64/100
+383/383 - 2s - 6ms/step - accuracy: 0.9467 - loss: 0.5177
+Epoch 65/100
+383/383 - 2s - 6ms/step - accuracy: 0.9492 - loss: 0.5098
+Epoch 66/100
+383/383 - 2s - 6ms/step - accuracy: 0.9499 - loss: 0.5067
+Epoch 67/100
+383/383 - 2s - 6ms/step - accuracy: 0.9519 - loss: 0.5008
+Epoch 68/100
+383/383 - 2s - 6ms/step - accuracy: 0.9527 - loss: 0.4962
+Epoch 69/100
+383/383 - 2s - 6ms/step - accuracy: 0.9547 - loss: 0.4910
+Epoch 70/100
+383/383 - 2s - 6ms/step - accuracy: 0.9550 - loss: 0.4890
+Epoch 71/100
+383/383 - 2s - 6ms/step - accuracy: 0.9563 - loss: 0.4845
+Epoch 72/100
+383/383 - 2s - 6ms/step - accuracy: 0.9579 - loss: 0.4780
+Epoch 73/100
+383/383 - 2s - 6ms/step - accuracy: 0.9603 - loss: 0.4714
+Epoch 74/100
+383/383 - 2s - 6ms/step - accuracy: 0.9617 - loss: 0.4687
+Epoch 75/100
+383/383 - 2s - 6ms/step - accuracy: 0.9616 - loss: 0.4662
+Epoch 76/100
+383/383 - 2s - 6ms/step - accuracy: 0.9640 - loss: 0.4614
+Epoch 77/100
+383/383 - 2s - 6ms/step - accuracy: 0.9668 - loss: 0.4531
+Epoch 78/100
+383/383 - 2s - 6ms/step - accuracy: 0.9667 - loss: 0.4508
+Epoch 79/100
+383/383 - 2s - 6ms/step - accuracy: 0.9679 - loss: 0.4486
+Epoch 80/100
+383/383 - 2s - 6ms/step - accuracy: 0.9689 - loss: 0.4429
+Epoch 81/100
+383/383 - 2s - 6ms/step - accuracy: 0.9695 - loss: 0.4404
+Epoch 82/100
+383/383 - 2s - 6ms/step - accuracy: 0.9721 - loss: 0.4359
+Epoch 83/100
+383/383 - 2s - 6ms/step - accuracy: 0.9731 - loss: 0.4321
+Epoch 84/100
+383/383 - 2s - 6ms/step - accuracy: 0.9740 - loss: 0.4293
+Epoch 85/100
+383/383 - 2s - 6ms/step - accuracy: 0.9742 - loss: 0.4272
+Epoch 86/100
+383/383 - 2s - 6ms/step - accuracy: 0.9752 - loss: 0.4240
+Epoch 87/100
+383/383 - 2s - 6ms/step - accuracy: 0.9758 - loss: 0.4214
+Epoch 88/100
+383/383 - 2s - 6ms/step - accuracy: 0.9767 - loss: 0.4192
+Epoch 89/100
+383/383 - 2s - 6ms/step - accuracy: 0.9787 - loss: 0.4150
+Epoch 90/100
+383/383 - 2s - 6ms/step - accuracy: 0.9782 - loss: 0.4149
+Epoch 91/100
+383/383 - 2s - 6ms/step - accuracy: 0.9803 - loss: 0.4105
+Epoch 92/100
+383/383 - 2s - 6ms/step - accuracy: 0.9794 - loss: 0.4109
+Epoch 93/100
+383/383 - 2s - 6ms/step - accuracy: 0.9807 - loss: 0.4061
+Epoch 94/100
+383/383 - 2s - 6ms/step - accuracy: 0.9809 - loss: 0.4058
+Epoch 95/100
+383/383 - 2s - 6ms/step - accuracy: 0.9825 - loss: 0.4030
+Epoch 96/100
+383/383 - 2s - 6ms/step - accuracy: 0.9816 - loss: 0.4035
+Epoch 97/100
+383/383 - 2s - 6ms/step - accuracy: 0.9814 - loss: 0.4025
+Epoch 98/100
+383/383 - 2s - 6ms/step - accuracy: 0.9823 - loss: 0.4012
+Epoch 99/100
+383/383 - 2s - 6ms/step - accuracy: 0.9819 - loss: 0.4015
+Epoch 100/100
+383/383 - 2s - 6ms/step - accuracy: 0.9828 - loss: 0.3982
+Float test accuracy: 0.9028
+Quantizable layers: 22 | pretrain_epochs=100
+[ABC 1] best fit=0.7536 acc=0.7980 bops_wa=0.5667 scouts=0
+[ABC 2] best fit=0.7870 acc=0.8320 bops_wa=0.5776 scouts=0
+[ABC 3] best fit=0.7876 acc=0.8290 bops_wa=0.5342 scouts=0
+[ABC 4] best fit=0.7911 acc=0.8350 bops_wa=0.5776 scouts=0
+[ABC 5] best fit=0.7911 acc=0.8350 bops_wa=0.5776 scouts=0
+[ABC 6] best fit=0.8091 acc=0.8600 bops_wa=0.7049 scouts=1
+[ABC 7] best fit=0.8385 acc=0.8900 bops_wa=0.7158 scouts=1
+[ABC 8] best fit=0.8428 acc=0.8850 bops_wa=0.5749 scouts=1
+[ABC 9] best fit=0.8428 acc=0.8850 bops_wa=0.5749 scouts=1
+[ABC 10] best fit=0.8428 acc=0.8850 bops_wa=0.5749 scouts=0
+[ABC 11] best fit=0.8428 acc=0.8850 bops_wa=0.5749 scouts=1
+[ABC 12] best fit=0.8565 acc=0.9110 bops_wa=0.7375 scouts=2
+[ABC 13] best fit=0.8600 acc=0.9110 bops_wa=0.6941 scouts=0
+[ABC 14] best fit=0.8600 acc=0.9110 bops_wa=0.6941 scouts=1
+[ABC 15] best fit=0.8600 acc=0.9110 bops_wa=0.6941 scouts=0
+[ABC 16] best fit=0.8605 acc=0.9090 bops_wa=0.6507 scouts=0
+[ABC 17] best fit=0.8605 acc=0.9090 bops_wa=0.6507 scouts=2
+[ABC 18] best fit=0.8648 acc=0.9120 bops_wa=0.6399 scouts=1
+[ABC 19] best fit=0.8648 acc=0.9120 bops_wa=0.6399 scouts=1
+[ABC 20] best fit=0.8648 acc=0.9120 bops_wa=0.6399 scouts=0
+[ABC 1] best fit=0.5991 acc=0.6390 bops_wa=0.5213 scouts=0
+[ABC 2] best fit=0.6239 acc=0.6660 bops_wa=0.5647 scouts=0
+[ABC 3] best fit=0.8036 acc=0.8520 bops_wa=0.6312 scouts=0
+[ABC 4] best fit=0.8036 acc=0.8520 bops_wa=0.6312 scouts=0
+[ABC 5] best fit=0.8036 acc=0.8520 bops_wa=0.6312 scouts=0
+[ABC 6] best fit=0.8381 acc=0.8890 bops_wa=0.6775 scouts=0
+[ABC 7] best fit=0.8381 acc=0.8890 bops_wa=0.6775 scouts=0
+[ABC 8] best fit=0.8381 acc=0.8890 bops_wa=0.6775 scouts=1
+[ABC 9] best fit=0.8381 acc=0.8890 bops_wa=0.6775 scouts=1
+[ABC 10] best fit=0.8381 acc=0.8890 bops_wa=0.6775 scouts=0
+[ABC 11] best fit=0.8381 acc=0.8890 bops_wa=0.6775 scouts=0
+[ABC 12] best fit=0.8426 acc=0.8950 bops_wa=0.7185 scouts=0
+[ABC 13] best fit=0.8426 acc=0.8950 bops_wa=0.7185 scouts=0
+[ABC 14] best fit=0.8426 acc=0.8950 bops_wa=0.7185 scouts=1
+[ABC 15] best fit=0.8426 acc=0.8950 bops_wa=0.7185 scouts=1
+[ABC 16] best fit=0.8426 acc=0.8950 bops_wa=0.7185 scouts=1
+[ABC 17] best fit=0.8426 acc=0.8950 bops_wa=0.7185 scouts=0
+[ABC 18] best fit=0.8426 acc=0.8950 bops_wa=0.7185 scouts=0
+[ABC 19] best fit=0.8426 acc=0.8950 bops_wa=0.7185 scouts=0
+[ABC 20] best fit=0.8531 acc=0.8940 bops_wa=0.5424 scouts=0
+[ABC 1] best fit=0.7441 acc=0.7840 bops_wa=0.5396 scouts=0
+[ABC 2] best fit=0.7562 acc=0.8040 bops_wa=0.6101 scouts=0
+[ABC 3] best fit=0.8055 acc=0.8540 bops_wa=0.6209 scouts=0
+[ABC 4] best fit=0.8110 acc=0.8560 bops_wa=0.5776 scouts=1
+[ABC 5] best fit=0.8312 acc=0.8790 bops_wa=0.6318 scouts=0
+[ABC 6] best fit=0.8317 acc=0.8820 bops_wa=0.6751 scouts=0
+[ABC 7] best fit=0.8337 acc=0.8840 bops_wa=0.6751 scouts=0
+[ABC 8] best fit=0.8385 acc=0.8870 bops_wa=0.6426 scouts=0
+[ABC 9] best fit=0.8410 acc=0.8870 bops_wa=0.5992 scouts=1
+[ABC 10] best fit=0.8410 acc=0.8870 bops_wa=0.5992 scouts=1
+[ABC 11] best fit=0.8410 acc=0.8870 bops_wa=0.5992 scouts=1
+[ABC 12] best fit=0.8489 acc=0.9020 bops_wa=0.7615 scouts=0
+[ABC 13] best fit=0.8489 acc=0.9020 bops_wa=0.7615 scouts=0
+[ABC 14] best fit=0.8489 acc=0.9020 bops_wa=0.7615 scouts=2
+[ABC 15] best fit=0.8499 acc=0.9030 bops_wa=0.7615 scouts=1
+[ABC 16] best fit=0.8499 acc=0.9030 bops_wa=0.7615 scouts=0
+[ABC 17] best fit=0.8504 acc=0.9070 bops_wa=0.8049 scouts=0
+[ABC 18] best fit=0.8549 acc=0.8960 bops_wa=0.5423 scouts=0
+[ABC 19] best fit=0.8584 acc=0.9020 bops_wa=0.5857 scouts=0
+[ABC 20] best fit=0.8584 acc=0.9020 bops_wa=0.5857 scouts=2
+[ABC 1] best fit=0.5789 acc=0.6150 bops_wa=0.4563 scouts=0
+[ABC 2] best fit=0.6300 acc=0.6660 bops_wa=0.4475 scouts=0
+[ABC 3] best fit=0.7478 acc=0.7930 bops_wa=0.6260 scouts=0
+[ABC 4] best fit=0.8564 acc=0.9040 bops_wa=0.6531 scouts=0
+[ABC 5] best fit=0.8564 acc=0.9040 bops_wa=0.6531 scouts=2
+[ABC 6] best fit=0.8576 acc=0.9040 bops_wa=0.6423 scouts=0
+[ABC 7] best fit=0.8576 acc=0.9040 bops_wa=0.6423 scouts=0
+[ABC 8] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=1
+[ABC 9] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=0
+[ABC 10] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=0
+[ABC 11] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=1
+[ABC 12] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=0
+[ABC 13] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=1
+[ABC 14] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=3
+[ABC 15] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=0
+[ABC 16] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=1
+[ABC 17] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=0
+[ABC 18] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=2
+[ABC 19] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=0
+[ABC 20] best fit=0.8644 acc=0.9050 bops_wa=0.5556 scouts=1
+[ABC 1] best fit=0.7864 acc=0.8390 bops_wa=0.7260 scouts=0
+[ABC 2] best fit=0.7864 acc=0.8390 bops_wa=0.7260 scouts=0
+[ABC 3] best fit=0.7864 acc=0.8390 bops_wa=0.7260 scouts=0
+[ABC 4] best fit=0.8306 acc=0.8860 bops_wa=0.7802 scouts=0
+[ABC 5] best fit=0.8306 acc=0.8860 bops_wa=0.7802 scouts=1
+[ABC 6] best fit=0.8473 acc=0.9030 bops_wa=0.7832 scouts=0
+[ABC 7] best fit=0.8473 acc=0.9030 bops_wa=0.7832 scouts=1
+[ABC 8] best fit=0.8486 acc=0.8960 bops_wa=0.6532 scouts=0
+^[[B^[[B[ABC 9] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=0
+[ABC 10] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=2
+[ABC 11] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=1
+[ABC 12] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=2
+[ABC 13] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=1
+[ABC 14] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=0
+[ABC 15] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=0
+[ABC 16] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=0
+[ABC 17] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=0
+[ABC 18] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=0
+[ABC 19] best fit=0.8553 acc=0.9050 bops_wa=0.6941 scouts=2
+[ABC 20] best fit=0.8584 acc=0.9010 bops_wa=0.5881 scouts=1
+[ABC 1] best fit=0.5714 acc=0.6120 bops_wa=0.4987 scouts=0
+[ABC 2] best fit=0.6232 acc=0.6670 bops_wa=0.5529 scouts=0
+[ABC 3] best fit=0.7215 acc=0.7650 bops_wa=0.5637 scouts=0
+[ABC 4] best fit=0.7230 acc=0.7640 bops_wa=0.5204 scouts=0
+[ABC 5] best fit=0.7230 acc=0.7640 bops_wa=0.5204 scouts=0
+[ABC 6] best fit=0.7230 acc=0.7640 bops_wa=0.5204 scouts=0
+[ABC 7] best fit=0.8108 acc=0.8520 bops_wa=0.5234 scouts=0
+[ABC 8] best fit=0.8108 acc=0.8520 bops_wa=0.5234 scouts=0
+[ABC 9] best fit=0.8283 acc=0.8740 bops_wa=0.6260 scouts=0
+[ABC 10] best fit=0.8283 acc=0.8740 bops_wa=0.6260 scouts=0
+[ABC 11] best fit=0.8283 acc=0.8740 bops_wa=0.6260 scouts=1
+[ABC 12] best fit=0.8290 acc=0.8770 bops_wa=0.6694 scouts=2
+[ABC 13] best fit=0.8342 acc=0.8820 bops_wa=0.6483 scouts=0
+[ABC 14] best fit=0.8342 acc=0.8820 bops_wa=0.6483 scouts=0
+[ABC 15] best fit=0.8350 acc=0.8850 bops_wa=0.6917 scouts=0
+[ABC 16] best fit=0.8358 acc=0.8860 bops_wa=0.6941 scouts=1
+[ABC 17] best fit=0.8358 acc=0.8860 bops_wa=0.6941 scouts=2
+[ABC 18] best fit=0.8358 acc=0.8860 bops_wa=0.6941 scouts=0
+[ABC 19] best fit=0.8358 acc=0.8860 bops_wa=0.6941 scouts=1
+[ABC 20] best fit=0.8358 acc=0.8860 bops_wa=0.6941 scouts=0
+
+Last-seed ABC bits: [8, 4, 4, 8, 4, 8, 4, 8, 8, 8, 4, 8, 8, 8, 4, 4, 8, 4, 4, 4, 8, 8]
+
+Method          Accuracy (%)    BOPs ratio      Avg bits        Acc/BOPs        p-value vs ABC-Q
+----------------------------------------------------------------------------------------------------
+Uniform 8-bit   91.4    1.000   8.00    0.9     —
+Uniform 4-bit   10.3    0.250   4.00    0.4     —
+Uniform 2-bit   10.3    0.062   2.00    1.6     —
+Random Search   90.1 ± 1.3      0.710 ± 0.097   5.33    1.3     ns
+CMA-ES (Hansen) 91.5 ± 0.7      0.628 ± 0.065   5.91    1.5     ns
+ABC-Q (no prior)        89.5 ± 1.0      0.597 ± 0.084   6.21    1.5     ns
+ABC-Q (ours)    90.5 ± 0.6      0.605 ± 0.031   5.28    1.5     —
+Sensitivity prior gain (calib acc, pp): 1.00 ± 1.14 (n=3).
+Wilcoxon vs ABC-Q: Random p=0.5000; CMA-ES p=0.2500.
+Figures saved under: /home/ubuntu/mimaize/results/resnet20
+Epoch 1/8
+I0000 00:00:1775320894.754298 1080033 dot_merger.cc:481] Merging Dots in computation: a_inference_one_step_on_data_1164585__.165
+I0000 00:00:1775320901.374293 1080026 dot_merger.cc:481] Merging Dots in computation: a_inference_one_step_on_data_1164585__.165
+383/383 - 15s - 40ms/step - accuracy: 0.9673 - loss: 0.4367
+Epoch 2/8
+383/383 - 3s - 7ms/step - accuracy: 0.9690 - loss: 0.4346
+Epoch 3/8
+383/383 - 2s - 6ms/step - accuracy: 0.9725 - loss: 0.4258
+Epoch 4/8
+383/383 - 2s - 6ms/step - accuracy: 0.9743 - loss: 0.4203
+Epoch 5/8
+383/383 - 2s - 6ms/step - accuracy: 0.9770 - loss: 0.4121
+Epoch 6/8
+383/383 - 2s - 6ms/step - accuracy: 0.9797 - loss: 0.4043
+Epoch 7/8
+383/383 - 2s - 7ms/step - accuracy: 0.9826 - loss: 0.3978
+Epoch 8/8
+383/383 - 3s - 7ms/step - accuracy: 0.9839 - loss: 0.3952
+Test accuracy after quant + fine-tune (last-seed ABC): 0.9058
+(venv) ubuntu@0194-dsm2-dla100sxm-prxmx70185:~/mimaize$
+[train] 0:bash*                                                                                                 "0194-dsm2-dla100sxm-p" 16:42 04-Apr-26
