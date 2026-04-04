@@ -1,0 +1,6 @@
+numpy
+scipy
+cma
+matplotlib
+tensorflow-macos
+tensorflow-metal

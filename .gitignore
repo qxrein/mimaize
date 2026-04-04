@@ -1,0 +1,12 @@
+*
+!/.gitignore
+!/.gitkeep
+
+!*.py
+!*.png
+
+!flake.lock
+!flake.nix
+
+!*.txt
+!results/
