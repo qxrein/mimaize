@@ -1049,7 +1049,7 @@ def _agg(xs: Sequence[float]) -> Tuple[float, float]:
 def main() -> None:
     """Train float ResNet-20, run searches across seeds, print table, save figures under ``results/``."""
     config = get_experiment_config()
-    use_prior_cfg = bool(config.get("use_sensitivity_prior", True))
+    use_prior_cfg = bool(config.get("use_sensitivity_parior", True))
     run_ablate = bool(config.get("run_sensitivity_ablation", False))
     seeds = active_seeds()
     results_dir = os.environ.get("ABC_Q_RESULTS_DIR", RESNET20_RESULTS_DIR)
