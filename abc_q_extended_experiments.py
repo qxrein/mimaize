@@ -22,6 +22,7 @@ from typing import Any, Dict, List, Sequence, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras import mixed_precision
 from tensorflow.keras import Model
 from tensorflow.keras.layers import (
     Activation,
@@ -42,6 +43,10 @@ from abc_q_stats import compute_pareto_frontier, print_paper_table, wilcoxon_pai
 plt.rcParams.update({"font.size": 12})
 
 RESULTS_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
+A100_OPTIMIZED = os.environ.get("A100_OPTIMIZED", "1") == "1"
+USE_MIXED_PRECISION = os.environ.get("USE_MIXED_PRECISION", "1") == "1"
+USE_XLA = os.environ.get("USE_XLA", "1") == "1"
+ALLOW_TF32 = os.environ.get("ALLOW_TF32", "1") == "1"
 CSV_COLUMNS = [
     "method",
     "dataset",
@@ -74,6 +79,41 @@ class ExpConfig:
     use_sensitivity_prior: bool = True
     random_cloud_samples: int = 500
     data_split_seed: int = 0
+
+
+def configure_a100_runtime() -> None:
+    """Enable common A100 speedups (mixed precision, TF32, XLA) when requested."""
+    if not A100_OPTIMIZED:
+        return
+    try:
+        gpus = tf.config.list_physical_devices("GPU")
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError:
+        pass
+    if USE_XLA:
+        tf.config.optimizer.set_jit(True)
+    if USE_MIXED_PRECISION:
+        mixed_precision.set_global_policy("mixed_float16")
+    try:
+        tf.config.experimental.enable_tensor_float_32_execution(ALLOW_TF32)
+    except Exception:
+        pass
+
+
+def make_dataset_fast(
+    x: np.ndarray,
+    y: np.ndarray,
+    batch_size: int,
+    shuffle: bool,
+    augment: bool = False,
+    shuffle_seed: int | None = None,
+) -> tf.data.Dataset:
+    """Dataset pipeline with non-deterministic execution for throughput."""
+    ds = core.make_dataset(x, y, batch_size, shuffle=shuffle, augment=augment, shuffle_seed=shuffle_seed)
+    opts = tf.data.Options()
+    opts.experimental_deterministic = False
+    return ds.with_options(opts)
 
 
 def make_dirs() -> Dict[str, str]:
@@ -164,6 +204,7 @@ def build_resnet(depth: int, num_classes: int, lr_schedule: Any) -> Model:
         optimizer=Adam(learning_rate=lr_schedule),
         loss=core.sparse_cce_with_label_smoothing(num_classes, core.LABEL_SMOOTHING),
         metrics=["accuracy"],
+        jit_compile=USE_XLA,
     )
     return model
 
@@ -185,6 +226,7 @@ def build_mobilenetv2(num_classes: int, lr_schedule: Any) -> Model:
         optimizer=Adam(learning_rate=lr_schedule),
         loss=core.sparse_cce_with_label_smoothing(num_classes, core.LABEL_SMOOTHING),
         metrics=["accuracy"],
+        jit_compile=USE_XLA,
     )
     return model
 
@@ -205,6 +247,7 @@ def build_efficientnetb0(num_classes: int, lr_schedule: Any) -> Model:
         optimizer=Adam(learning_rate=lr_schedule),
         loss=core.sparse_cce_with_label_smoothing(num_classes, core.LABEL_SMOOTHING),
         metrics=["accuracy"],
+        jit_compile=USE_XLA,
     )
     return model
 
@@ -231,20 +274,22 @@ def eval_test_after_finetune(
     float_weights: List[np.ndarray],
     quant_names: Sequence[str],
     bit_config: np.ndarray,
-    data: Dict[str, np.ndarray],
+    ds_train: tf.data.Dataset,
+    ds_test: tf.data.Dataset,
+    train_size: int,
     batch_size: int,
     finetune_epochs: int,
 ) -> Tuple[float, float]:
-    ds_train = core.make_dataset(data["x_train"], data["y_train"], batch_size, shuffle=True, augment=True)
-    ds_test = core.make_dataset(data["x_test"], data["y_test"], batch_size, shuffle=False)
+    """Fine-tune quantized model and return (test_acc, finetune_seconds)."""
     m = build_model(model_name, num_classes, lr_schedule=1e-3)
     m.set_weights(copy.deepcopy(float_weights))
-    steps = max(1, len(data["x_train"]) // batch_size) * finetune_epochs
+    steps = max(1, train_size // batch_size) * finetune_epochs
     ft_lr = tf.keras.optimizers.schedules.CosineDecay(2e-4, decay_steps=steps, alpha=0.15)
     m.compile(
         optimizer=Adam(learning_rate=ft_lr),
         loss=core.sparse_cce_with_label_smoothing(num_classes, core.LABEL_SMOOTHING),
         metrics=["accuracy"],
+        jit_compile=USE_XLA,
     )
     core.apply_best_config_permanently(m, quant_names, bit_config)
     t0 = time.perf_counter()
@@ -258,11 +303,16 @@ def run_one_combo(cfg: ExpConfig, paths: Dict[str, str]) -> Tuple[List[Dict[str,
     dataset, model_name, seeds = cfg.dataset, cfg.model_name, list(cfg.seeds)
     num_classes = 100 if dataset == "cifar100" else 10
     data = load_dataset(dataset, cfg)
-    ds_train = core.make_dataset(data["x_train"], data["y_train"], cfg.batch_size, shuffle=True, augment=True)
-    ds_test = core.make_dataset(data["x_test"], data["y_test"], cfg.batch_size, shuffle=False)
+    run_batch = int(cfg.batch_size)
+    if A100_OPTIMIZED and model_name in {"resnet20", "resnet56"}:
+        run_batch = max(run_batch, 256)
+    elif A100_OPTIMIZED and model_name in {"mobilenetv2", "efficientnetb0"}:
+        run_batch = max(run_batch, 192)
+    ds_train = make_dataset_fast(data["x_train"], data["y_train"], run_batch, shuffle=True, augment=True)
+    ds_test = make_dataset_fast(data["x_test"], data["y_test"], run_batch, shuffle=False)
 
     # float pretrain
-    steps = max(1, len(data["x_train"]) // cfg.batch_size)
+    steps = max(1, len(data["x_train"]) // run_batch)
     lr = tf.keras.optimizers.schedules.CosineDecay(1e-3, decay_steps=steps * cfg.pretrain_epochs, alpha=0.06)
     core.set_seed(seeds[0])
     model = build_model(model_name, num_classes, lr)
@@ -277,7 +327,10 @@ def run_one_combo(cfg: ExpConfig, paths: Dict[str, str]) -> Tuple[List[Dict[str,
     layer_bops_specs = core.build_layer_bops_specs(model, quant_names)
 
     # baseline once (uniform)
-    act_stats = core.collect_activation_stats(model, quant_names, data["x_calib"], data["y_calib"])
+    act_stats = core.collect_activation_stats(model, quant_names, data["x_calib"], data["y_calib"], batch_size=run_batch)
+    ft_ds_train = make_dataset_fast(data["x_train"], data["y_train"], run_batch, shuffle=True, augment=True)
+    ft_ds_test = make_dataset_fast(data["x_test"], data["y_test"], run_batch, shuffle=False)
+
     sensitivity_t0 = time.perf_counter()
     sensitivity = core.compute_layer_sensitivity(model, quant_names, data["x_calib"], data["y_calib"])
     sensitivity_time = time.perf_counter() - sensitivity_t0
@@ -390,8 +443,10 @@ def run_one_combo(cfg: ExpConfig, paths: Dict[str, str]) -> Tuple[List[Dict[str,
                 float_weights,
                 quant_names,
                 res.bit_config,
-                data,
-                cfg.batch_size,
+                ft_ds_train,
+                ft_ds_test,
+                len(data["x_train"]),
+                run_batch,
                 cfg.finetune_epochs,
             )
             rows.append(
@@ -428,7 +483,16 @@ def run_one_combo(cfg: ExpConfig, paths: Dict[str, str]) -> Tuple[List[Dict[str,
     for method, res in [("Uniform 8-bit", uniform8), ("Uniform 4-bit", uniform4), ("Uniform 2-bit", uniform2)]:
         for seed in seeds:
             test_acc, ft_t = eval_test_after_finetune(
-                model_name, num_classes, float_weights, quant_names, res.bit_config, data, cfg.batch_size, cfg.finetune_epochs
+                model_name,
+                num_classes,
+                float_weights,
+                quant_names,
+                res.bit_config,
+                ft_ds_train,
+                ft_ds_test,
+                len(data["x_train"]),
+                run_batch,
+                cfg.finetune_epochs,
             )
             rows.append(
                 {
@@ -607,6 +671,11 @@ def summarize_stdout(all_rows: List[Dict[str, Any]]) -> None:
 
 
 def main() -> None:
+    configure_a100_runtime()
+    print(
+        f"A100_OPTIMIZED={A100_OPTIMIZED} MIXED_PRECISION={USE_MIXED_PRECISION} "
+        f"XLA={USE_XLA} TF32={ALLOW_TF32}"
+    )
     paths = make_dirs()
     combos: List[ExpConfig] = [
         ExpConfig("cifar100", "resnet20", [42, 123, 456, 789, 1024], pretrain_epochs=100),
@@ -627,6 +696,8 @@ def main() -> None:
         all_timing.extend(timing_rows)
         if cfg.model_name == "mobilenetv2" and cfg.dataset == "cifar10":
             mob_summary = summary
+        if not (cfg.model_name == "mobilenetv2" and cfg.dataset == "cifar10"):
+            tf.keras.backend.clear_session()
 
     write_csv(os.path.join(paths["csv"], "extended_results.csv"), all_rows, CSV_COLUMNS)
     write_csv(
