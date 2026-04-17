@@ -272,7 +272,6 @@ def eval_test_after_finetune(
     model_name: str,
     num_classes: int,
     float_weights: List[np.ndarray],
-    quant_names: Sequence[str],
     bit_config: np.ndarray,
     ds_train: tf.data.Dataset,
     ds_test: tf.data.Dataset,
@@ -291,7 +290,13 @@ def eval_test_after_finetune(
         metrics=["accuracy"],
         jit_compile=USE_XLA,
     )
-    core.apply_best_config_permanently(m, quant_names, bit_config)
+    quant_names_fresh = core.get_quantizable_layer_names(m)
+    if len(quant_names_fresh) != len(bit_config):
+        raise ValueError(
+            f"Bit config length {len(bit_config)} does not match quantizable layers "
+            f"{len(quant_names_fresh)} for {model_name}."
+        )
+    core.apply_best_config_permanently(m, quant_names_fresh, bit_config)
     t0 = time.perf_counter()
     m.fit(ds_train, epochs=finetune_epochs, verbose=0)
     finetune_t = time.perf_counter() - t0
@@ -441,7 +446,6 @@ def run_one_combo(cfg: ExpConfig, paths: Dict[str, str]) -> Tuple[List[Dict[str,
                 model_name,
                 num_classes,
                 float_weights,
-                quant_names,
                 res.bit_config,
                 ft_ds_train,
                 ft_ds_test,
@@ -486,7 +490,6 @@ def run_one_combo(cfg: ExpConfig, paths: Dict[str, str]) -> Tuple[List[Dict[str,
                 model_name,
                 num_classes,
                 float_weights,
-                quant_names,
                 res.bit_config,
                 ft_ds_train,
                 ft_ds_test,
