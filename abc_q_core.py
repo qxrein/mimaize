@@ -1576,6 +1576,11 @@ def main() -> None:
         },
         "row_order": row_order,
         "run_complete": True,
+        "convergence_abc_cma": {
+            "seed": int(seeds[-1]),
+            "abc": abc_conv_plot,
+            "cma": cma_conv_plot,
+        },
     }
     with open(summary_path, "w", encoding="utf-8") as jf:
         json.dump(summary_payload, jf, indent=2)
@@ -1599,6 +1604,101 @@ def main() -> None:
 # Backward compatibility for scripts that expect the old API names.
 load_cifar10_splits = load_dataset_splits
 get_quantizable_layers = get_quantizable_layer_names
+
+def capture_convergence_plot(seed: Optional[int] = None) -> None:
+    """Run ABC-Q and CMA-ES once (last seed) and write convergence PNG + JSON.
+
+    Uses the float checkpoint in ``results/<BACKBONE>/<DATASET>/`` if present.
+    Does not re-run the full multi-seed study or fine-tuning.
+    """
+    from abc_q_plots import plot_convergence_abc_vs_cma
+
+    configure_gpu_memory()
+    config = get_experiment_config()
+    seeds = active_seeds()
+    plot_seed = int(seed if seed is not None else seeds[-1])
+    results_dir = os.environ.get(
+        "ABC_Q_RESULTS_DIR", os.path.join(_ABC_Q_ROOT, "results", BACKBONE, DATASET)
+    )
+    os.makedirs(results_dir, exist_ok=True)
+
+    data = load_dataset_splits(config)
+    set_seed(plot_seed)
+    model = build_model()
+    ckpt_path = os.path.join(results_dir, "float_checkpoint.weights.h5")
+    if not os.path.exists(ckpt_path):
+        raise FileNotFoundError(
+            f"Missing {ckpt_path}; run the full experiment first to train/load float weights."
+        )
+    model.load_weights(ckpt_path)
+    float_weights = copy.deepcopy(model.get_weights())
+    quant_names = get_quantizable_layer_names(model)
+    param_counts = layer_param_counts(model, quant_names)
+    layer_bops_specs = build_layer_bops_specs(model, quant_names)
+    act_stats: Optional[Dict[int, Tuple[float, float]]] = None
+    if QUANTIZE_ACTIVATIONS:
+        act_stats = collect_activation_stats(
+            model,
+            quant_names,
+            data["x_calib"],
+            data["y_calib"],
+            batch_size=int(config["activation_collect_batch"]),
+        )
+    sensitivity = compute_layer_sensitivity(model, quant_names, data["x_calib"], data["y_calib"])
+    use_prior = bool(config.get("use_sensitivity_prior", True))
+
+    conv_abc: Dict[str, List[float]] = {}
+    model.set_weights(copy.deepcopy(float_weights))
+    abc_best, abc_budget = run_abc_q(
+        model,
+        quant_names,
+        data["x_calib"],
+        data["y_calib"],
+        param_counts,
+        sensitivity,
+        config["num_bees"],
+        config["abc_cycles"],
+        config["scout_limit"],
+        layer_bops_specs,
+        act_stats,
+        QUANTIZE_ACTIVATIONS,
+        use_prior,
+        conv_abc,
+    )
+
+    conv_cma: Dict[str, List[float]] = {}
+    model.set_weights(copy.deepcopy(float_weights))
+    run_cmaes_baseline(
+        model,
+        quant_names,
+        data["x_calib"],
+        data["y_calib"],
+        param_counts,
+        int(abc_budget),
+        layer_bops_specs,
+        act_stats,
+        QUANTIZE_ACTIVATIONS,
+        plot_seed,
+        conv_cma,
+    )
+
+    conv_path = os.path.join(results_dir, "convergence_abc_vs_cma.png")
+    plot_convergence_abc_vs_cma(conv_path, conv_abc, conv_cma)
+    conv_json = os.path.join(results_dir, "convergence_abc_cma.json")
+    payload = {"seed": plot_seed, "abc": conv_abc, "cma": conv_cma}
+    with open(conv_json, "w", encoding="utf-8") as jf:
+        json.dump(payload, jf, indent=2)
+
+    summary_path = os.path.join(results_dir, "experiment_summary.json")
+    if os.path.exists(summary_path):
+        with open(summary_path, encoding="utf-8") as jf:
+            summary = json.load(jf)
+        summary["convergence_abc_cma"] = payload
+        with open(summary_path, "w", encoding="utf-8") as jf:
+            json.dump(summary, jf, indent=2)
+
+    print(f"[convergence] seed={plot_seed} budget={abc_budget} -> {conv_path}")
+
 
 if __name__ == "__main__":
     main()
