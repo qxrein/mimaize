@@ -1,0 +1,91 @@
+{
+  "backbone": "mobilenetv2",
+  "dataset": "cifar10",
+  "num_classes": 10,
+  "n_seeds": 10,
+  "dry_run": false,
+  "float_test_accuracy": 0.8219000101089478,
+  "final_test_accuracy": 0.8176000118255615,
+  "search_wall_seconds": {
+    "ABC-Q (ours)": {
+      "mean": 258.79427678639985,
+      "std": 51.17793984604111
+    },
+    "Random Search": {
+      "mean": 250.80698753270082,
+      "std": 1.6949271105680166
+    },
+    "CMA-ES (Hansen)": {
+      "mean": 255.56071378820016,
+      "std": 2.4059981538117476
+    }
+  },
+  "paper_table_rows": {
+    "Uniform 8-bit": {
+      "mean_acc": 0.828000009059906,
+      "std_acc": 0.0,
+      "mean_bops_wa": 1.0,
+      "std_bops_wa": 0.0,
+      "mean_bops_wo": 0.0,
+      "std_bops_wo": 0.0
+    },
+    "Uniform 4-bit": {
+      "mean_acc": 0.703000009059906,
+      "std_acc": 0.0,
+      "mean_bops_wa": 0.25,
+      "std_bops_wa": 0.0,
+      "mean_bops_wo": 0.0,
+      "std_bops_wo": 0.0
+    },
+    "Uniform 2-bit": {
+      "mean_acc": 0.0820000022649765,
+      "std_acc": 0.0,
+      "mean_bops_wa": 0.0625,
+      "std_bops_wa": 0.0,
+      "mean_bops_wo": 0.0,
+      "std_bops_wo": 0.0
+    },
+    "Random Search": {
+      "mean_acc": 0.7757000029087067,
+      "std_acc": 0.010635887436483991,
+      "mean_bops_wa": 0.5588663899396042,
+      "std_bops_wa": 0.056782239429221615,
+      "mean_bops_wo": 0.6866410837809032,
+      "std_bops_wo": 0.04319315388134541
+    },
+    "CMA-ES (Hansen)": {
+      "mean_acc": 0.8212999939918518,
+      "std_acc": 0.0034976207336309476,
+      "mean_bops_wa": 0.5321259613174228,
+      "std_bops_wa": 0.054608462026731606,
+      "mean_bops_wo": 0.6727030260600615,
+      "std_bops_wo": 0.037593616882502616
+    },
+    "ABC-Q (ours)": {
+      "mean_acc": 0.7800000011920929,
+      "std_acc": 0.017701213916459586,
+      "mean_bops_wa": 0.47486030856199457,
+      "std_bops_wa": 0.02376246325044294,
+      "mean_bops_wo": 0.6229005140958391,
+      "std_bops_wo": 0.020116376530767123
+    },
+    "ABC-Q (no prior)": {
+      "mean_acc": 0.7381999969482422,
+      "std_acc": 0.0387235142619254,
+      "mean_bops_wa": 0.49227314998641614,
+      "std_bops_wa": 0.047283178009603084,
+      "mean_bops_wo": 0.6371946249817142,
+      "std_bops_wo": 0.034544031590569686
+    }
+  },
+  "row_order": [
+    "Uniform 8-bit",
+    "Uniform 4-bit",
+    "Uniform 2-bit",
+    "Random Search",
+    "CMA-ES (Hansen)",
+    "ABC-Q (no prior)",
+    "ABC-Q (ours)"
+  ],
+  "run_complete": true
+}

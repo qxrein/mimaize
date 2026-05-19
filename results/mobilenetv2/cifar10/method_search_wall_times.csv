@@ -1,0 +1,4 @@
+method,mean_wall_sec,std_wall_sec
+ABC-Q (ours),258.7943,51.1779
+Random Search,250.8070,1.6949
+CMA-ES (Hansen),255.5607,2.4060
