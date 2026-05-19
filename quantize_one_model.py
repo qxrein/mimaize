@@ -4,7 +4,7 @@
 Modes:
   uniform  — every quantizable layer uses the same bit width (--uniform-bits).
   manual   — supply --bits-config "8,4,4,..." (one integer per quantizable layer, in layer order).
-  abc      — run ABC-Q search on the calibration set (same logic as abc_q_cifar10_full).
+  abc      — run ABC-Q search on the calibration set (same logic as ``abc_q_core``).
 
 Calibration data: either --calib-npz (keys x, y) or --cifar-calib N (shuffled CIFAR-10 train).
 
@@ -22,7 +22,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 
-import abc_q_cifar10_full as abcq
+import abc_q_core as abcq
 
 
 def _load_calib_npz(path: str) -> tuple[np.ndarray, np.ndarray]:

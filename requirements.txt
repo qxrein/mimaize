@@ -2,5 +2,7 @@ numpy
 scipy
 cma
 matplotlib
-tensorflow-macos
-tensorflow-metal
+
+# Linux/WSL: bundled CUDA+cuDNN for GPU (RTX 3050). Pin 2.20 — 2.21 often fails cuDNN on WSL2.
+tensorflow[and-cuda]==2.20.0; platform_system != "Darwin"
+tensorflow-macos; platform_system == "Darwin"
