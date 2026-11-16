@@ -1,0 +1,52 @@
+{
+  "uniform4": {
+    "seed": null,
+    "search_calib": null,
+    "ptq_test": 0.2044,
+    "qat_test": 0.2932,
+    "epochs": 2,
+    "bops": 0.25,
+    "weights_on_grid": true,
+    "wall_s": 477.65002822875977
+  },
+  "cmaes": {
+    "seed": 3,
+    "search_calib": 0.086,
+    "ptq_test": 0.0815,
+    "qat_test": 0.2444,
+    "epochs": 2,
+    "bops": 0.24840195585731575,
+    "weights_on_grid": true,
+    "wall_s": 487.85464096069336
+  },
+  "ga": {
+    "seed": 0,
+    "search_calib": 0.074,
+    "ptq_test": 0.0466,
+    "qat_test": 0.223,
+    "epochs": 2,
+    "bops": 0.23396186744887285,
+    "weights_on_grid": true,
+    "wall_s": 475.1583800315857
+  },
+  "fisher_mckp": {
+    "seed": 0,
+    "search_calib": 0.164,
+    "ptq_test": 0.1585,
+    "qat_test": 0.2911,
+    "epochs": 2,
+    "bops": 0.24800196406227565,
+    "weights_on_grid": true,
+    "wall_s": 316.0315101146698
+  },
+  "abc_v2": {
+    "seed": 7,
+    "search_calib": 0.224,
+    "ptq_test": 0.2039,
+    "qat_test": 0.2948,
+    "epochs": 2,
+    "bops": 0.24983846485200303,
+    "weights_on_grid": true,
+    "wall_s": 256.91111397743225
+  }
+}

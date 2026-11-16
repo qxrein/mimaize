@@ -1,0 +1,27 @@
+\begin{table}[t]
+\centering
+\caption{Component ablation of ABC-Q v2 (calibration and test accuracy, \%, mean $\pm$ std over seeds; $\Delta$: change in calibration accuracy vs.\ the full method; $p$: Holm-corrected two-sided Wilcoxon).}
+\label{tab:ablation}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{lcccc}
+\toprule
+Variant & Calib.\ (\%) & Test (\%) & $\Delta$ (pp) & $p$ \\
+\midrule
+\multicolumn{5}{l}{\emph{ResNet-20 / CIFAR-100, $B=0.25$}} \\
+ABC-Q v2 (full) & 45.40 $\pm$ 0.00 & 44.03 $\pm$ 0.00 & +0.00 & -- \\
+-- surrogate screening & 45.40 $\pm$ 0.00 & 44.03 $\pm$ 0.00 & +0.00 & 1.000 \\
+-- online surrogate refit & 45.40 $\pm$ 0.00 & 44.03 $\pm$ 0.00 & +0.00 & 1.000 \\
+-- knapsack initialisation & 45.29 $\pm$ 0.35 & 43.97 $\pm$ 0.19 & -0.11 & 1.000 \\
+-- information sharing & 45.40 $\pm$ 0.00 & 44.03 $\pm$ 0.00 & +0.00 & 1.000 \\
+single source (hill climber) & 45.40 $\pm$ 0.00 & 44.03 $\pm$ 0.00 & +0.00 & 1.000 \\
+\midrule
+\multicolumn{5}{l}{\emph{MobileNetV2 / CIFAR-10, $B=0.25$}} \\
+ABC-Q v2 (full) & 69.57 $\pm$ 0.55 & 67.19 $\pm$ 0.81 & +0.00 & -- \\
+-- surrogate screening & 69.36 $\pm$ 0.69 & 67.34 $\pm$ 0.61 & -0.21 & 0.516 \\
+-- online surrogate refit & 68.62 $\pm$ 0.27 & 66.82 $\pm$ 0.33 & -0.95 & 0.010 \\
+-- knapsack initialisation & 61.75 $\pm$ 4.61 & 61.08 $\pm$ 4.66 & -7.82 & 0.010 \\
+-- information sharing & 69.89 $\pm$ 0.57 & 67.51 $\pm$ 0.22 & +0.32 & 0.176 \\
+single source (hill climber) & 69.93 $\pm$ 0.85 & 67.23 $\pm$ 0.49 & +0.36 & 0.516 \\
+\bottomrule
+\end{tabular}}
+\end{table}

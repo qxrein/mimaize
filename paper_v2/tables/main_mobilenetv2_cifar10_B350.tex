@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{MobileNetV2 / CIFAR-10, BOPs budget $B=0.35$ (fraction of W8A8), $E=300$ evaluations, $n=10$ seeds. Float test accuracy 76.32\%. Calib./test: PTQ accuracy (no fine-tuning) on the 1k calibration and 10k test sets. $p$: Holm-corrected two-sided Wilcoxon vs.\ ABC-Q v2 on calibration accuracy; $A_{12}$: Vargha--Delaney effect size (probability that v2 is better). Friedman $p=2.1e-07$.}
+\label{tab:main_mobilenetv2_cifar10_B350}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{lcccccc}
+\toprule
+Method & Calib.\ acc.\ (\%) & Test acc.\ (\%) & BOPs & Bits/param & $p$ & $A_{12}$ \\
+\midrule
+Uniform W4A4 & 44.70 & 44.09 & 0.250 & 4.00 & -- & -- \\
+Random search & 33.26 $\pm$ 6.21 & 33.36 $\pm$ 6.90 & 0.342 & 3.93 & 0.008 & 1.00 \\
+Genetic algorithm & 61.86 $\pm$ 3.80 & 60.67 $\pm$ 3.71 & 0.336 & 3.76 & 0.008 & 1.00 \\
+CMA-ES & 61.63 $\pm$ 5.29 & 61.25 $\pm$ 5.31 & 0.344 & 3.96 & 0.008 & 1.00 \\
+ABC-Q v1 (original) & 47.96 $\pm$ 5.67 & 47.41 $\pm$ 5.76 & 0.337 & 3.77 & 0.008 & 1.00 \\
+Fisher-MCKP (HAWQ-V2-style) & 52.70 & 52.79 & 0.348 & 3.99 & -- & -- \\
+Probe-MCKP (one-shot) & 67.50 & 67.68 & 0.346 & 3.52 & -- & -- \\
+\textbf{ABC-Q v2 (proposed)} & \textbf{73.37 $\pm$ 0.87} & \textbf{70.71 $\pm$ 0.69} & 0.348 & 3.76 & -- & -- \\
+\bottomrule
+\end{tabular}}
+\end{table}
