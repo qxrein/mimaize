@@ -48,7 +48,7 @@ class Oracle:
         self.max_evals = int(max_evals)
         self.cache: Dict[bytes, float] = {}
         self.n = 0
-        self.best_acc = -1.0
+        self.best_acc = -np.inf
         self.best_cfg: Optional[np.ndarray] = None
         self.trace: List[float] = []  # best feasible acc after each distinct evaluation
         self.history: List[Tuple[np.ndarray, float]] = []
@@ -290,8 +290,8 @@ def run_abc_v1(oracle: Oracle, L: int, rng: np.random.RandomState, grad_prior: n
     def new_source():
         c = rng.choice(BITS, size=L)
         for d in np.where(sens)[0]:
-            if c[d] < 4:
-                c[d] = rng.choice([4, 8])
+            if c[d] == BITS[0]:  # sensitivity floor: never the lowest bit-width
+                c[d] = rng.choice(BITS[1:])
         return random_repair(c, oracle, rng)
 
     def mutate(c):

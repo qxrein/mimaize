@@ -1,0 +1,21 @@
+\begin{table*}[t]
+\centering
+\caption{Weight-only mixed-precision quantization of LLMs (bits $\{2,3,4\}$ per linear layer, group-wise round-to-nearest, group size 128) at an average of $3.0$ bits per parameter. WikiText-2 test perplexity (lower is better; first 65{,}536 test tokens, context 512), mean $\pm$ std over 3 seeds for stochastic methods. Uniform 4-bit uses $33\%$ more memory and is shown for reference.}
+\label{tab:ext_llm}
+\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{lcccc}
+\toprule
+Method & OPT-125M & OPT-350M & Qwen2.5-0.5B & Llama-3.2-1B \\
+\midrule
+FP16 & 42.2 & 34.3 & 17.5 & 13.5 \\
+Uniform 4-bit (4.0 bits) & 54.2 & 39.8 & 21.3 & 16.9 \\
+Uniform 3-bit (3.0 bits) & 284.2 & 232.2 & 90.3 & 315.1 \\
+\midrule
+Genetic algorithm & 189.3 $\pm$ 38.0 & 185.9 $\pm$ 54.5 & 113.8 $\pm$ 3.1 & 72.2 $\pm$ 12.1 \\
+CMA-ES & 214.9 $\pm$ 25.0 & 188.2 $\pm$ 14.0 & 145.8 $\pm$ 8.0 & 83.8 $\pm$ 1.6 \\
+Fisher-MCKP (HAWQ-V2-style) & 137.8 & 249.1 & 374.8 & 199.2 \\
+Probe-MCKP (one-shot) & 134.8 & 77.3 & 59.3 & 38.4 \\
+\textbf{ABC-Q (proposed)} & \textbf{103.2 $\pm$ 1.7} & \textbf{63.2 $\pm$ 1.4} & \textbf{47.6 $\pm$ 1.6} & \textbf{34.3 $\pm$ 0.5} \\
+\bottomrule
+\end{tabular}}
+\end{table*}

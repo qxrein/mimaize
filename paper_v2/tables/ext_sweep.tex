@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{One-shot allocation on ImageNet (W$\{2,4,8\}$A8) across budgets: measured probes vs.\ the Fisher-weighted (HAWQ-V2-style) proxy. Top-1 test accuracy (\%).}
+\label{tab:ext_sweep}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+Model & $B$ & Probe-MCKP & Fisher-MCKP \\
+\midrule
+MobileNetV2 & 0.60 & 33.46 & 0.25 \\
+MobileNetV2 & 0.70 & 47.03 & 0.77 \\
+MobileNetV2 & 0.80 & 52.89 & 42.05 \\
+MobileNetV2 & 0.90 & 52.95 & 56.92 \\
+ResNet-18 & 0.40 & 0.13 & 0.14 \\
+ResNet-18 & 0.50 & 32.19 & 2.59 \\
+ResNet-18 & 0.60 & 43.35 & 38.36 \\
+ResNet-18 & 0.70 & 50.61 & 40.26 \\
+\bottomrule
+\end{tabular}
+\end{table}

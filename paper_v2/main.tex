@@ -1,5 +1,5 @@
 % =====================================================================================
-%  ABC-Q v2 manuscript.
+%  ABC-Q manuscript.
 %  Written with the standard article class so it compiles anywhere. To submit to a
 %  Springer Nature journal, download the Springer Nature LaTeX template (sn-jnl.cls),
 %  replace the preamble below with  \documentclass[sn-mathphys-num]{sn-jnl}  and move the
@@ -41,21 +41,25 @@ Mixed-precision post-training quantization assigns a bit-width to every layer of
 but choosing the assignment is a hard discrete optimisation problem. Swarm and evolutionary methods
 are popular for it, yet are usually compared with penalised fitness functions that make methods land
 at different costs. We pose bit allocation as accuracy maximisation under a hard bit-operations (BOPs)
-budget with an equal evaluation budget for all methods, and propose ABC-Q v2, a surrogate-assisted
+budget with an equal evaluation budget for all methods, and propose ABC-Q, a surrogate-assisted
 discrete Artificial Bee Colony search. It measures single-layer quantization damage directly, fits an
 additive accuracy surrogate refined online by ridge regression towards these probes, seeds and
 re-seeds food sources with exact multiple-choice-knapsack optima of randomly perturbed surrogates,
 and explores with budget-neutral information-sharing moves. On ResNet-20 and MobileNetV2 trained on
-CIFAR-10/100, two budgets and ten seeds, random search, a genetic algorithm, CMA-ES and our earlier
-ABC-Q are, in 15 of 16 cases, \emph{worse} than uniform 4-bit quantization at the same cost, while
-ABC-Q v2 attains the highest calibration accuracy in all eight settings (Holm-corrected Wilcoxon
+CIFAR-10/100, two budgets and ten seeds, random search, a genetic algorithm, CMA-ES and a gradient-prior
+ABC are, in 15 of 16 cases, \emph{worse} than uniform 4-bit quantization at the same cost, while
+ABC-Q attains the highest calibration accuracy in all eight settings (Holm-corrected Wilcoxon
 $p=0.008$ against every search baseline) and improves test accuracy over uniform W4A4 by up to
 $23.1$ percentage points (MobileNetV2/CIFAR-10). It also outperforms a HAWQ-V2-style one-shot
 allocator, and we show that gradient- and Fisher-based sensitivity proxies are only moderately
 correlated with measured damage. An ablation shows that probing, knapsack seeding and the online
-surrogate carry the gains, whereas the colony dynamics add little at our budget, and short
+surrogate carry the gains on CIFAR, whereas the colony dynamics add little there, and short
 quantization-aware fine-tuning reduces the differences between allocations to about one percentage
-point. Code and all per-run results are released.
+point. The findings carry over to ImageNet-pretrained CNNs, where every GA, CMA-ES and HAWQ-style
+allocation collapses while ABC-Q keeps a working network, and to weight-only quantization of four
+language models (OPT-125M/350M, Qwen2.5-0.5B, Llama-3.2-1B): at $3.0$ bits per parameter with round-to-nearest rounding, ABC-Q lowers
+WikiText-2 perplexity by $1.9$--$9.2\times$ relative to uniform 3-bit quantization of the same size and
+by $11$--$23\%$ relative to its own one-shot starting point. All per-run results are openly available.
 \end{abstract}
 
 \noindent\textbf{Keywords:} mixed-precision quantization; artificial bee colony; surrogate-assisted
@@ -88,13 +92,13 @@ algorithms \citep{Yuan2020EvoQ,Bodner2022GradFreeBits}) evaluate real candidates
 interactions, but under a realistic evaluation budget they spend most of it in infeasible or
 obviously poor regions of the space.
 
-In an earlier version of this work (ABC-Q v1) we used the Artificial Bee Colony (ABC) algorithm
-\citep{Karaboga2007} with a gradient-magnitude prior and a penalised fitness. A careful re-examination
-revealed three problems that also affect much of the swarm-intelligence literature on this task:
-(i) penalised fitness functions make methods land at \emph{different} cost points, so accuracy
-comparisons are confounded; (ii) the gradient-magnitude prior is only a moderate predictor of the
-measured quantization damage; and (iii) v1's operators did not use ABC's defining information-sharing
-mechanism. This paper replaces v1 with a method designed around these observations.
+Swarm-intelligence approaches to this problem, such as the Artificial Bee Colony (ABC) algorithm
+\citep{Karaboga2007} combined with a gradient-magnitude sensitivity prior and a penalised fitness, share
+three weaknesses: (i) penalised fitness functions make methods land at \emph{different} cost points, so
+accuracy comparisons are confounded; (ii) cheap sensitivity priors are only moderate predictors of the
+measured quantization damage; and (iii) simple single-dimension mutation operators discard ABC's
+defining information-sharing mechanism. This paper proposes a method designed around these
+observations.
 
 \paragraph{Contributions.}
 \begin{enumerate}
@@ -102,7 +106,7 @@ mechanism. This paper replaces v1 with a method designed around these observatio
       maximising calibration accuracy subject to a hard bit-operations (BOPs) budget. Every method
       receives the same budget, the same number of \emph{distinct} fitness evaluations, and the same
       evaluation cache, so all reported accuracies are at matched cost.
-\item \textbf{ABC-Q v2, a surrogate-assisted discrete ABC.} Single-layer probes give a prior for an
+\item \textbf{ABC-Q, a surrogate-assisted discrete ABC.} Single-layer probes give a prior for an
       additive accuracy surrogate that is refit online by ridge regression shrunk towards the prior.
       The surrogate drives (a) diverse, feasible initial and scout food sources obtained as exact
       multiple-choice-knapsack (MCKP) optima of randomly perturbed surrogates, (b) a budget-neutral
@@ -111,13 +115,16 @@ mechanism. This paper replaces v1 with a method designed around these observatio
       one is evaluated. A component ablation shows which of these parts actually matter: knapsack
       seeding and the online surrogate do, while the colony dynamics add little at our budget.
 \item \textbf{A test of the sensitivity-prior assumption.} We measure the single-layer damage
-      $\Delta_i(b)$ directly and quantify how well the v1 gradient prior and a HAWQ-V2-style Fisher
+      $\Delta_i(b)$ directly and quantify how well a gradient-magnitude prior and a HAWQ-V2-style Fisher
       score predict it.
 \item \textbf{A rigorous empirical protocol.} Two backbones $\times$ two datasets $\times$ two
       budgets, seven methods (including a one-shot HAWQ-V2-style allocator), ten seeds, Friedman and
       Holm-corrected Wilcoxon tests with Vargha--Delaney effect sizes, component ablations, test-set
       (not only calibration) accuracy, and quantization-aware fine-tuning in which the network stays
       quantized.
+\item \textbf{Scaling evidence.} The same search code, unchanged, applied to ImageNet-pretrained
+      MobileNetV2 and ResNet-18 and to weight-only quantization of four public language models up to
+      1.2B parameters (Section~\ref{sec:scaling}).
 \end{enumerate}
 
 %% ===================================================================================
@@ -142,7 +149,7 @@ Probe-MCKP and Fisher-MCKP baselines belong to this one-shot family.
 
 \paragraph{Gradient-free search.} EvoQ \citep{Yuan2020EvoQ} uses sensitivity-guided evolutionary
 search, and GradFreeBits \citep{Bodner2022GradFreeBits} alternates CMA-ES \citep{Hansen2001CMA} bit
-allocation with QAT. Compared with these, ABC-Q v2 operates under a hard cost constraint, couples the
+allocation with QAT. Compared with these, ABC-Q operates under a hard cost constraint, couples the
 population search with an online surrogate and exact knapsack initialisation, and is evaluated
 against both search and one-shot baselines at matched cost and matched evaluation budget.
 
@@ -189,7 +196,7 @@ Each method may evaluate at most $E=300$ \emph{distinct} configurations; repeate
 served from a cache for every method. Methods that probe single layers pay for the probes out of $E$.
 
 %% ===================================================================================
-\section{Method: ABC-Q v2}
+\section{Method: ABC-Q}
 \label{sec:method}
 %% ===================================================================================
 
@@ -239,12 +246,12 @@ is valuable, and the new configuration is always feasible.
 For every employed and onlooker bee, $K=6$ distinct, not-yet-evaluated neighbours are generated and
 only the one with the highest surrogate prediction is evaluated (greedy ABC acceptance). Onlookers
 choose sources with probability $\propto\exp\!\big((f_i-\max_j f_j)/\tau\big)$, $\tau=0.01$ (on accuracy
-in $[0,1]$, a plain softmax as used in v1 is almost uniform). A source that fails to improve in
+in $[0,1]$, a plain softmax is almost uniform). A source that fails to improve in
 $\ell=6$ consecutive trials is replaced by a fresh perturbed-MCKP scout, except for the current best.
 Algorithm~\ref{alg:abcq2} summarises the method; we use $N=12$ food sources.
 
 \begin{algorithm}[t]
-\caption{ABC-Q v2 (budget $\beta$, evaluation budget $E$)}
+\caption{ABC-Q (budget $\beta$, evaluation budget $E$)}
 \label{alg:abcq2}
 \begin{algorithmic}[1]
 \State Probe $\Delta_i(b)$ for all $i$, $b\in\{2,4\}$; $\mathbf w\gets\mathbf w^0=\Delta$ \Comment{$2L{+}1$ evaluations}
@@ -282,17 +289,17 @@ ranges, probes and fitness; the test set is touched only to report the final con
 tournament size 3, uniform crossover ($p_c=0.9$), per-gene mutation $1/L$, two elites;
 \emph{CMA-ES} \citep{Hansen2001CMA,Hansen2016Tutorial} optimises a relaxation in $[0,2]^L$
 ($\sigma_0=0.6$) rounded to $\{2,4,8\}$, as in GradFreeBits \citep{Bodner2022GradFreeBits};
-\emph{ABC-Q v1} uses our earlier operators (gradient prior, 4-bit floor on the top-25\% layers,
+\emph{ABC-GP} is a conventional discrete ABC with a gradient-magnitude prior (4-bit floor on the top-25\% layers,
 single-layer mutation with $p(d)\propto1-\tilde s_d$, softmax onlookers, random scouts; $N=16$,
 $\ell=8$). These four use a cost-aware random repair (lower a random layer, chosen with probability
 proportional to the BOPs it saves, until feasible). \emph{Fisher-MCKP} is a one-shot HAWQ-V2-style
 allocator: $\Omega_i(b)=\mathrm{Tr}(\hat F_i)\,\|Q_b(W_i)-W_i\|_2^2$ with the empirical Fisher
 trace replacing the Hessian trace, solved exactly as an MCKP (one evaluation). \emph{Probe-MCKP} solves
-the MCKP on the measured $\Delta$ (the starting point of ABC-Q v2 without any search).
+the MCKP on the measured $\Delta$ (the starting point of ABC-Q without any search).
 
 \paragraph{Statistics.} Stochastic methods are run with ten seeds. Following
 \citet{Derrac2011} and \citet{Demsar2006} we report a Friedman test across stochastic methods and
-two-sided Wilcoxon signed-rank tests of ABC-Q v2 against each competitor, Holm-corrected
+two-sided Wilcoxon signed-rank tests of ABC-Q against each competitor, Holm-corrected
 \citep{Holm1979} within each (model, dataset, budget) family, with the Vargha--Delaney $A_{12}$ effect
 size \citep{Vargha2000}.
 
@@ -301,8 +308,14 @@ seed and run two epochs of QAT with STE \citep{Bengio2013STE}: float shadow weig
 every step, activations stay fake-quantized and BatchNorm statistics are frozen, so the evaluated
 network is genuinely quantized.
 
-\paragraph{Hardware and code.} All experiments run in TensorFlow 2.16 on a single Apple M4 laptop
-(16\,GB). Code, per-run logs and all configurations are released with the paper.
+\paragraph{Hardware and code.} The CIFAR experiments run in TensorFlow 2.16 and the ImageNet and LLM experiments (Section~\ref{sec:scaling}) in PyTorch 2.15, all on a single Apple M4 laptop
+(16\,GB). All raw per-run results are available on Zenodo \citep{AbcqResults}.
+
+\paragraph{Use of AI tools.} An AI assistant (Claude, Anthropic) was used during this work to help
+implement the experiment code, run and analyse the experiments, and draft parts of the manuscript text.
+All methods, results and text were reviewed, verified and revised by the authors, who take full
+responsibility for the content of this article. All reported numbers can be recomputed from the
+published per-run results \citep{AbcqResults}.
 
 %% ===================================================================================
 \section{Results}
@@ -324,10 +337,10 @@ per-configuration tables with calibration accuracy, achieved BOPs, bits per para
 $p$-values and effect sizes are given in Appendix~\ref{app:tables}. Four observations stand out.
 
 \paragraph{(1) Generic metaheuristics under a hard budget are worse than uniform precision.}
-With the same evaluation budget, random search, the GA, CMA-ES and the v1 operators return
+With the same evaluation budget, random search, the GA, CMA-ES and ABC-GP return
 configurations that are \emph{less} accurate than uniform W4A4 at the same cost in 15 of the 16
 method/setting pairs at $\beta=0.25$; the only exception is the GA on MobileNetV2/CIFAR-10
-($46.2\%$ vs.\ $44.1\%$ test), where CMA-ES ($38.6\%$) and v1 ($35.6\%$) are again below W4A4. Random configurations almost always contain several 2-bit layers whose damage compounds, and
+($46.2\%$ vs.\ $44.1\%$ test), where CMA-ES ($38.6\%$) and ABC-GP ($35.6\%$) are again below W4A4. Random configurations almost always contain several 2-bit layers whose damage compounds, and
 the repaired search space is dominated by such configurations; a few hundred evaluations are not
 enough for unguided search to escape them. Their seed-to-seed variability is also large (GA standard
 deviation up to $9.7$\,pp).
@@ -338,7 +351,7 @@ $17.4$\,pp (ResNet-20/CIFAR-100) in test accuracy at $\beta=0.25$, but Fisher-MC
 ResNet-20/CIFAR-10 ($79.8\%$ vs.\ $74.7\%$). A single one-shot proxy is therefore not reliable across
 models.
 
-\paragraph{(3) ABC-Q v2 is the best or tied-best method in every setting.} It achieves the highest
+\paragraph{(3) ABC-Q is the best or tied-best method in every setting.} It achieves the highest
 calibration accuracy (the search objective) in all eight model/dataset/budget settings, and the highest
 test accuracy in six of them; in the other two it is within $0.1$\,pp of the deterministic Probe-MCKP
 allocation. All $32$ Holm-corrected Wilcoxon tests against the stochastic search baselines ($n=10$
@@ -348,7 +361,7 @@ ResNet-20/CIFAR-100 and $+0.3$\,pp on ResNet-20/CIFAR-10. It is also far more re
 search methods (standard deviation $\le0.8$\,pp; on ResNet-20 all seeds return the same configuration).
 
 \paragraph{(4) The gain over uniform precision depends strongly on the model.} On
-MobileNetV2/CIFAR-100 at $\beta=0.25$, ABC-Q v2 improves calibration accuracy over W4A4 by $3.5$\,pp
+MobileNetV2/CIFAR-100 at $\beta=0.25$, ABC-Q improves calibration accuracy over W4A4 by $3.5$\,pp
 but test accuracy is unchanged ($20.1\%$ vs.\ $20.4\%$): with 100 classes the 1{,}000-image calibration
 set holds only ten images per class and the search partially fits it. Across all runs the calibration
 accuracy of a returned configuration predicts its test accuracy very well (Spearman $\rho\ge0.98$,
@@ -369,12 +382,12 @@ methods and seeds). The dotted line is $y=x$.}
 \centering
 \includegraphics[width=\linewidth]{figs/anytime.pdf}
 \caption{Best feasible calibration accuracy vs.\ number of distinct evaluations (mean over seeds).
-ABC-Q v2 curves start after the $2L{+}1$ probe evaluations. Dashed: one-shot allocators; dotted:
+ABC-Q curves start after the $2L{+}1$ probe evaluations. Dashed: one-shot allocators; dotted:
 uniform W4A4.}
 \label{fig:anytime}
 \end{figure}
 
-Figure~\ref{fig:anytime} shows best-so-far calibration accuracy against evaluations. ABC-Q v2 spends
+Figure~\ref{fig:anytime} shows best-so-far calibration accuracy against evaluations. ABC-Q spends
 its first $2L+1$ evaluations on probes, yet overtakes every other method within the first few dozen
 evaluations after them, because its very first food source (the MCKP optimum of the probe surrogate)
 is already a strong configuration. The remaining budget yields smaller, steady gains on MobileNetV2;
@@ -395,7 +408,7 @@ the probe values (no online refit) costs $1.0$\,pp ($p=0.010$). Surrogate screen
 information-sharing move and the colony itself are \emph{not} significant at this budget: a
 single-source variant (a surrogate-guided hill climber started from the MCKP optimum) is statistically
 indistinguishable from the full colony. On ResNet-20/CIFAR-100 all variants return essentially the same
-configuration (one seed of the no-knapsack variant differs by $1.1$\,pp). We therefore attribute the performance of ABC-Q v2 to the combination of measured
+configuration (one seed of the no-knapsack variant differs by $1.1$\,pp). We therefore attribute the performance of ABC-Q to the combination of measured
 probes, exact knapsack seeding and the online ridge-to-prior surrogate, and regard the ABC colony as
 one adequate, but not uniquely necessary, search engine on top of them. Whether population diversity
 pays off at larger evaluation budgets or on larger networks is an open question.
@@ -404,12 +417,12 @@ pays off at larger evaluation budgets or on larger networks is an open question.
 
 \input{tables/sens_corr}
 
-Table~\ref{tab:sens_corr} tests the assumption behind ABC-Q v1 and HAWQ-style allocation. The v1
+Table~\ref{tab:sens_corr} tests the assumption behind gradient-prior and HAWQ-style allocation. The
 gradient-magnitude prior correlates only moderately with the measured 2-bit damage
 ($\rho=0.35$--$0.61$) and weakly with the 4-bit damage on ResNet-20/CIFAR-100 ($\rho=0.17$); its
 top-25\% ``sensitive'' set overlaps with the truly most damaging layers in only 33--57\% of cases. The
 Fisher-weighted quantization-error score is similar for 2 bits ($\rho=0.49$--$0.64$) but nearly
-uncorrelated for 4 bits on ResNet-20 ($\rho\in\{-0.08,0.06\}$). This explains both the weak v1 results
+uncorrelated for 4 bits on ResNet-20 ($\rho\in\{-0.08,0.06\}$). This explains both the weak ABC-GP results
 and the inconsistent Fisher-MCKP results: when the ranking of layers is wrong, an exact allocation of a
 wrong objective is still wrong. Measuring the damage directly costs $2L+1$ forward passes and removes
 this source of error.
@@ -417,7 +430,7 @@ this source of error.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/bit_allocation.pdf}
-\caption{Per-layer bit-widths chosen by ABC-Q v2 at $\beta=0.25$ (fraction of seeds) and the measured
+\caption{Per-layer bit-widths chosen by ABC-Q at $\beta=0.25$ (fraction of seeds) and the measured
 single-layer 2-bit damage $\Delta_i(2)$ (red, symmetric-log scale).}
 \label{fig:bits}
 \end{figure}
@@ -433,12 +446,12 @@ compute-heavy positions.
 
 Table~\ref{tab:qat} reports test accuracy after two epochs of QAT. QAT recovers most of the
 post-training loss for every configuration and compresses the differences between allocators to
-$\le1.5$\,pp for all methods except CMA-ES and GA on the hardest settings. After QAT, the ABC-Q v2
+$\le1.5$\,pp for all methods except CMA-ES and GA on the hardest settings. After QAT, the ABC-Q
 configuration is the best of the five on both ResNet-20 tasks ($87.41\%$ vs.\ $86.35\%$ for uniform
 W4A4 on CIFAR-10; $55.87\%$ vs.\ $55.08\%$ on CIFAR-100) and tied-best on MobileNetV2/CIFAR-100
 ($29.48\%$ vs.\ $29.32\%$), whereas on MobileNetV2/CIFAR-10 uniform W4A4 recovers better ($71.15\%$
 vs.\ $69.72\%$); mixed configurations that trade 2-bit layers for 8-bit layers are not always easier to
-fine-tune than uniform 4-bit. The practical message is that ABC-Q v2 is above all a
+fine-tune than uniform 4-bit. The practical message is that ABC-Q is above all a
 \emph{post-training} method: without any gradient-based training it reaches, on MobileNetV2/CIFAR-10,
 $95\%$ of the accuracy that uniform W4A4 attains only after QAT, while with a QAT budget its advantage
 shrinks to about one percentage point in either direction. These QAT results use one configuration per
@@ -451,14 +464,91 @@ loop is the natural next step.
 
 Table~\ref{tab:wall} reports wall-clock times. Because all search methods are limited to the same
 number of distinct evaluations, their run times are similar (2--5 minutes per run on a laptop); the
-surrogate, knapsack and refit computations of ABC-Q v2 add no measurable overhead (its runs are not
+surrogate, knapsack and refit computations of ABC-Q add no measurable overhead (its runs are not
 slower than those of the baselines). The one-shot allocators need seconds after their statistics are computed.
+
+\subsection{Scaling to ImageNet-pretrained CNNs and large language models}
+\label{sec:scaling}
+
+To test whether the conclusions survive beyond CIFAR, we applied the identical search code to two
+further settings, implemented in PyTorch with the same evaluator design (cached or on-the-fly
+quantized weights, fake-quantized layer inputs, one forward pass per fitness evaluation).
+
+\paragraph{Setup.} \emph{ImageNet:} publicly released ImageNet-pretrained MobileNetV2 and ResNet-18
+checkpoints \citep{Sandler2018,He2016}, evaluated on ImageNetV2 (matched-frequency) \citep{Recht2019}
+because the original validation images cannot be redistributed; 512 images form the calibration set
+and the remaining 9{,}488 the test set. Weights are mixed in $\{2,4,8\}$ bits with 8-bit activations
+(W$\{2,4,8\}$A8, the common mixed-precision setting \citep{Yao2021HAWQV3}), so the BOPs cost of layer
+$i$ is $8\,b_i\,\mathrm{MAC}_i$. Naive post-training W4A8 already destroys MobileNetV2 ($0.2\%$
+top-1), so we use $\beta=0.6$ for MobileNetV2 and $\beta=0.5$ (the cost of uniform W4A8) for
+ResNet-18. \emph{LLMs:} four public causal language models commonly used in quantization research,
+OPT-125M and OPT-350M \citep{Zhang2022OPT}, Qwen2.5-0.5B \citep{Qwen2024} and Llama-3.2-1B
+\citep{Grattafiori2024Llama3}. Every linear layer in the transformer blocks (72--168 layers) is quantized
+weight-only with group-wise round-to-nearest (group size 128), the standard baseline of
+\citet{Frantar2023GPTQ}, at $b_i\in\{2,3,4\}$; the cost is bits per parameter and the budget is an average
+of $3.0$ bits ($\beta=0.75$ relative to 4 bits). Bit counts refer to the quantized weights only: the
+fp16 scale and offset stored for every group of 128 weights add a further $0.25$ bits per parameter in
+a real deployment, identically for every method and for the uniform baselines. Quantization is simulated
+(weights are rounded to the grid but kept in fp16), so no memory or speed measurements are reported. Fitness is the negative log-likelihood on
+$8\times512$ WikiText-2 \emph{training} tokens \citep{Merity2017WikiText}; we report perplexity on the
+first $65{,}536$ WikiText-2 test tokens. The evaluation budget is $E=2L+201$ (probes plus 200 search
+evaluations); because each LLM evaluation is expensive we run GA, CMA-ES and ABC-Q with three seeds and
+omit random search and ABC-GP, which were clearly the weakest methods on CIFAR.
+
+\input{tables/ext_llm}
+
+\paragraph{LLMs.} Table~\ref{tab:ext_llm} shows the clearest results of the study. At $3.0$ bits per
+parameter ABC-Q reduces WikiText-2 perplexity relative to uniform 3-bit quantization of the same size
+by $2.8\times$ on OPT-125M ($284.2\to103.2$), $3.7\times$ on OPT-350M ($232.2\to63.2$) and $1.9\times$ on
+Qwen2.5-0.5B ($90.3\to47.6$) and $9.2\times$ on Llama-3.2-1B ($315.1\to34.3$), with a seed-to-seed spread of only a few perplexity points.
+The GA and CMA-ES improve on uniform 3-bit for the OPT and Llama models but are \emph{worse} than it on
+Qwen2.5-0.5B, and remain $1.8$--$3.1\times$ worse than ABC-Q everywhere; and the Fisher-weighted HAWQ-style allocation is inconsistent (close to Probe-MCKP on
+OPT-125M, but worse than uniform 3-bit on OPT-350M and Qwen2.5-0.5B). In contrast to CIFAR, the search
+itself matters here: ABC-Q improves its own probe-based starting point (Probe-MCKP) by $11$--$23\%$ in
+perplexity on every model, so the population search contributes substantially once the number of
+layers and their interactions grow.
+
+These numbers measure the quality of the \emph{allocation}, not deployment-ready models. With
+round-to-nearest, even the best 3.0-bit configurations remain far from full precision: Llama-3.2-1B
+reaches a perplexity of $34.3$ against $13.5$ in FP16 and $16.9$ for uniform 4-bit (which uses
+$33\%$ more memory), and OPT-125M reaches $103.2$ against $42.2$ in FP16. Error-compensating rounding
+such as GPTQ \citep{Frantar2023GPTQ} is known to close much of this gap at 3--4 bits and is
+complementary to ABC-Q: it can quantize each layer at the bit-width that ABC-Q selects. We did not run
+this combination, so we make no claim about the absolute quality attainable at 3 bits.
+
+\input{tables/ext_imagenet}
+
+\paragraph{ImageNet.} Table~\ref{tab:ext_imagenet} confirms the CIFAR picture under a much harsher
+regime. On both pretrained CNNs every GA and CMA-ES run, and the Fisher-MCKP allocation, collapses to
+below $3\%$ top-1: almost any configuration that places 2-bit weights in a sensitive layer destroys the
+network, and unguided search under a hard budget does not escape this region. ABC-Q is the only search
+method that returns a working network: on MobileNetV2 at $\beta=0.6$ it reaches $38.8\%$ top-1 ($+5.3$\,pp
+over its Probe-MCKP starting point), and on ResNet-18 at the cost of uniform W4A8 it recovers exactly the
+uniform W4A8 configuration ($34.7\%$) in all seeds, i.e.\ it finds no mixed configuration that beats
+uniform precision at this budget. Table~\ref{tab:ext_sweep} shows why one-shot curvature-style
+allocation is fragile: across budgets the Fisher-weighted score collapses MobileNetV2 up to
+$\beta=0.7$, whereas measured probes keep the network functional from $\beta=0.6$ upwards.
+
+\input{tables/ext_sweep}
 
 \subsection{Limitations}
 \begin{itemize}
-\item \textbf{Scale.} All experiments use $32\times32$ CIFAR images and two compact backbones trained
-      for 40 epochs; our MobileNetV2/CIFAR-100 float model is weak ($35.9\%$). ImageNet-scale
-      validation with stronger checkpoints is required before deployment claims.
+\item \textbf{Scale.} The full protocol (ten seeds, two budgets, ablations, QAT) is run on CIFAR with
+      compact backbones trained for 40 epochs (our MobileNetV2/CIFAR-100 model is weak, $35.9\%$). The
+      ImageNet and LLM experiments (Section~\ref{sec:scaling}) use three seeds, one budget each, models up
+      to 1.2B parameters, ImageNetV2 instead of the original validation set, and a reduced WikiText-2 test
+      subset; larger models and full benchmarks remain to be tested.
+\item \textbf{Rounding and absolute quality.} We use round-to-nearest throughout, to isolate the effect
+      of bit allocation. The resulting 3.0-bit language models are not deployment-quality (e.g.\
+      Llama-3.2-1B: perplexity $34.3$ vs.\ $13.5$ in FP16). Reconstruction-based rounding (AdaRound,
+      BRECQ, GPTQ) would raise the quality of every configuration; whether it changes the ranking of
+      allocation methods is open.
+\item \textbf{LLM evaluation scope.} Language models are evaluated by WikiText-2 perplexity only
+      (first 65{,}536 test tokens, context 512), without zero-shot downstream tasks, longer contexts or
+      other corpora. The reported bit budgets exclude the per-group scale and offset overhead
+      ($\approx0.25$ bits per parameter).
+\item \textbf{No hardware measurements.} All quantization is simulated; we report neither memory
+      footprints of packed models nor latency. Mixed 2/3/4-bit kernels exist only for some accelerators.
 \item \textbf{Simulated quantization and BOPs.} We use fake quantization without BatchNorm folding and
       MAC-weighted BOPs as the cost; measured latency or energy on a specific accelerator may rank
       configurations differently.
@@ -474,21 +564,32 @@ slower than those of the baselines). The one-shot allocators need seconds after 
 \section{Conclusion}
 %% ===================================================================================
 We revisited swarm-based mixed-precision bit allocation under a hard BOPs budget and an equal
-evaluation budget for every method. Unguided metaheuristics (random search, a GA, CMA-ES and our
-earlier ABC-Q v1) turned out to be worse than simply quantizing every layer to 4 bits at the same
-cost. ABC-Q v2, which measures single-layer damage directly, seeds its population with exact
+evaluation budget for every method. Unguided metaheuristics (random search, a GA, CMA-ES and a gradient-prior
+ABC) turned out to be worse than simply quantizing every layer to 4 bits at the same
+cost. ABC-Q, which measures single-layer damage directly, seeds its population with exact
 multiple-choice-knapsack optima of an additive surrogate and refits that surrogate online, was the
 best or tied-best method in all settings, with large gains on the heterogeneous MobileNetV2
 ($+23$\,pp test accuracy over uniform W4A4 at equal cost on CIFAR-10) and small gains on the homogeneous
 ResNet-20. The ablation shows that probes, knapsack seeding and the online surrogate, rather than the
 colony dynamics, carry the improvement, and the QAT experiment shows that the advantage is largest in
-the post-training setting and shrinks to about one percentage point after fine-tuning. We also found that the gradient-magnitude prior used by v1 and a
+the post-training setting and shrinks to about one percentage point after fine-tuning. We also found that a gradient-magnitude prior and a
 Fisher-weighted HAWQ-style score are only moderately correlated with measured damage.
 
-Future work should (i) validate on ImageNet-scale models with hardware-measured latency,
+The same conclusions hold at larger scale. On ImageNet-pretrained CNNs, generic search and HAWQ-style
+allocation collapse under a tight budget while ABC-Q keeps a working network (although on ResNet-18 it
+only matches uniform W4A8). On four language models from 125M to 1.2B parameters, ABC-Q reduces
+perplexity at 3.0 bits per parameter by $1.9$--$9.2\times$ relative to uniform 3-bit quantization, and
+there, unlike on CIFAR, the population search adds a clear $11$--$23\%$ improvement over its one-shot
+knapsack starting point. Bit allocation for language models is thus the most promising application of
+the method, although with round-to-nearest the resulting 3-bit models remain well above full-precision
+perplexity; combining the searched allocation with error-compensating rounding such as GPTQ is the
+necessary next step towards deployable models.
+
+Future work should (i) measure latency and energy on hardware with sub-8-bit kernels,
 (ii) put short fine-tuning inside the search loop, (iii) study larger evaluation budgets where
 population diversity may matter, and (iv) combine the searched allocation with reconstruction-based
-PTQ such as AdaRound or BRECQ \citep{Nagel2020AdaRound,Li2021BRECQ}.
+PTQ such as AdaRound, BRECQ or GPTQ \citep{Nagel2020AdaRound,Li2021BRECQ,Frantar2023GPTQ}, and scale the
+LLM study to larger models.
 
 \appendix
 \section{Per-configuration results}
@@ -505,11 +606,26 @@ PTQ such as AdaRound or BRECQ \citep{Nagel2020AdaRound,Li2021BRECQ}.
 \FloatBarrier
 
 \section*{Declarations}
-\paragraph{Funding} No funding was received for this work.
-\paragraph{Competing interests} The authors declare no competing interests.
-\paragraph{Data and code availability} CIFAR-10/100 are public. Code, raw per-run results and
-configurations will be made available in a public repository upon publication.
-\paragraph{Author contributions} \emph{(fill in using CRediT roles before submission)}
+\begin{itemize}
+\item \textbf{Funding:} No funding was received for conducting this study.
+\item \textbf{Conflict of interest/Competing interests:} The authors have no competing interests to
+      declare that are relevant to the content of this article.
+\item \textbf{Ethics approval and consent to participate:} Not applicable. This study uses only the
+      publicly available CIFAR-10 and CIFAR-100 image datasets and involves no human participants or
+      animals.
+\item \textbf{Consent for publication:} Not applicable.
+\item \textbf{Data availability:} CIFAR-10/100 are publicly available \citep{Krizhevsky2009}. All raw
+      per-run results for the CIFAR, ImageNet and LLM experiments (every search run, returned
+      configuration, convergence trace, single-layer probe, sensitivity statistic and fine-tuning result) are openly available on Zenodo under a
+      CC~BY~4.0 licence \citep{AbcqResults}, at \url{https://doi.org/10.5281/zenodo.24276626}.
+\item \textbf{Materials availability:} Not applicable.
+\item \textbf{Code availability:} The code used to run the experiments is available from the
+      corresponding author on reasonable request.
+\item \textbf{Author contribution:} \emph{[Fill in before submission using CRediT roles, e.g.:]}
+      Manav: Conceptualization, Methodology, Software, Investigation, Writing -- original draft.
+      Sarthak Jain: [roles]. Manik Dhiman: [roles]. Shreshth Varshney: [roles].
+      All authors read and approved the final manuscript.
+\end{itemize}
 
 \section*{Acknowledgements}
 The authors thank Professor Richa Bhatiya for teaching the optimization course that grounded the

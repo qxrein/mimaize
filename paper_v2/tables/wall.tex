@@ -1,11 +1,11 @@
 \begin{table}[t]
 \centering
-\caption{Mean wall-clock time per search run (s) on an Apple M4 laptop (16\,GB). All stochastic methods use the same number of distinct evaluations, so wall time is dominated by forward passes; ABC-Q v2 includes probes and surrogate overhead.}
+\caption{Mean wall-clock time per search run (s) on an Apple M4 laptop (16\,GB). All stochastic methods use the same number of distinct evaluations, so wall time is dominated by forward passes; ABC-Q includes probes and surrogate overhead.}
 \label{tab:wall}
 \footnotesize\setlength{\tabcolsep}{2.5pt}
 \resizebox{\linewidth}{!}{\begin{tabular}{lccccccc}
 \toprule
-Model & Random & GA & CMA-ES & v1 & Fisher & Probe & v2 \\
+Model & Random & GA & CMA-ES & ABC-GP & Fisher & Probe & ABC-Q \\
 \midrule
 ResNet-20 / CIFAR-10 & 167 & 169 & 172 & 214 & 1 & 1 & 206 \\
 ResNet-20 / CIFAR-100 & 220 & 169 & 175 & 172 & 1 & 1 & 160 \\

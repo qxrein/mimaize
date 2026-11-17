@@ -1,6 +1,6 @@
 \begin{table*}[t]
 \centering
-\caption{Test accuracy (\%, mean over seeds, PTQ without fine-tuning) of the configuration returned by each method under BOPs budget $B$. Bold: best per column; $^{\dagger}$: ABC-Q v2 significantly better (Holm-corrected Wilcoxon on test accuracy, $p<0.05$); $^{\ddagger}$: significantly worse.}
+\caption{Test accuracy (\%, mean over seeds, PTQ without fine-tuning) of the configuration returned by each method under BOPs budget $B$. Bold: best per column; $^{\dagger}$: ABC-Q significantly better (Holm-corrected Wilcoxon on test accuracy, $p<0.05$); $^{\ddagger}$: significantly worse.}
 \label{tab:overview_test}
 \footnotesize\setlength{\tabcolsep}{3pt}
 \resizebox{\linewidth}{!}{\begin{tabular}{lcccccccc}
@@ -11,10 +11,10 @@ Method & $B{=}0.25$ & $B{=}0.35$ & $B{=}0.25$ & $B{=}0.35$ & $B{=}0.25$ & $B{=}0
 Random search & 29.49$^{\dagger}$ & 43.52$^{\dagger}$ & 5.11$^{\dagger}$ & 13.86$^{\dagger}$ & 23.73$^{\dagger}$ & 33.36$^{\dagger}$ & 3.43$^{\dagger}$ & 4.39$^{\dagger}$ \\
 Genetic algorithm & 72.11$^{\dagger}$ & 83.66$^{\dagger}$ & 34.48$^{\dagger}$ & 51.16$^{\dagger}$ & 46.21$^{\dagger}$ & 60.67$^{\dagger}$ & 6.05$^{\dagger}$ & 15.68$^{\dagger}$ \\
 CMA-ES & 64.74$^{\dagger}$ & 83.86$^{\dagger}$ & 20.74$^{\dagger}$ & 46.34$^{\dagger}$ & 38.63$^{\dagger}$ & 61.25$^{\dagger}$ & 7.42$^{\dagger}$ & 14.92$^{\dagger}$ \\
-ABC-Q v1 (original) & 40.86$^{\dagger}$ & 67.77$^{\dagger}$ & 9.77$^{\dagger}$ & 31.24$^{\dagger}$ & 35.55$^{\dagger}$ & 47.41$^{\dagger}$ & 3.62$^{\dagger}$ & 7.86$^{\dagger}$ \\
+ABC-GP (gradient prior) & 40.86$^{\dagger}$ & 67.77$^{\dagger}$ & 9.77$^{\dagger}$ & 31.24$^{\dagger}$ & 35.55$^{\dagger}$ & 47.41$^{\dagger}$ & 3.62$^{\dagger}$ & 7.86$^{\dagger}$ \\
 Fisher-MCKP (HAWQ-V2-style) & 79.83 & 85.07 & 25.71 & 51.47 & 47.91 & 52.79 & 15.85 & 21.85 \\
 Probe-MCKP (one-shot) & 74.70 & 85.01 & 43.06 & \textbf{52.73} & 65.47 & 67.68 & \textbf{20.17} & 26.19 \\
-\textbf{ABC-Q v2 (proposed)} & \textbf{80.05} & \textbf{86.60} & \textbf{44.03} & 52.64 & \textbf{67.19} & \textbf{70.71} & 20.10 & \textbf{26.22} \\
+\textbf{ABC-Q (proposed)} & \textbf{80.05} & \textbf{86.60} & \textbf{44.03} & 52.64 & \textbf{67.19} & \textbf{70.71} & 20.10 & \textbf{26.22} \\
 \bottomrule
 \end{tabular}}
 \end{table*}

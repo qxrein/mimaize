@@ -1,0 +1,14 @@
+LLM opt125m: FP16=42.2; Uniform 4-bit (4.0 bits)=54.2; Uniform 3-bit (3.0 bits)=284.2; Genetic algorithm=189.3; CMA-ES=214.9; Fisher-MCKP (HAWQ-V2-style)=137.8; Probe-MCKP (one-shot)=134.8; \textbf{ABC-Q (proposed)}=103.2
+LLM opt350m: FP16=34.3; Uniform 4-bit (4.0 bits)=39.8; Uniform 3-bit (3.0 bits)=232.2; Genetic algorithm=185.9; CMA-ES=188.2; Fisher-MCKP (HAWQ-V2-style)=249.1; Probe-MCKP (one-shot)=77.3; \textbf{ABC-Q (proposed)}=63.2
+LLM qwen0.5b: FP16=17.5; Uniform 4-bit (4.0 bits)=21.3; Uniform 3-bit (3.0 bits)=90.3; Genetic algorithm=113.8; CMA-ES=145.8; Fisher-MCKP (HAWQ-V2-style)=374.8; Probe-MCKP (one-shot)=59.3; \textbf{ABC-Q (proposed)}=47.6
+LLM llama3.2-1b: FP16=13.5; Uniform 4-bit (4.0 bits)=16.9; Uniform 3-bit (3.0 bits)=315.1; Genetic algorithm=72.2; CMA-ES=83.8; Fisher-MCKP (HAWQ-V2-style)=199.2; Probe-MCKP (one-shot)=38.4; \textbf{ABC-Q (proposed)}=34.3
+ImageNet mobilenetv2 B=0.6: FP32=58.75; Uniform W8A8 ($B=1.0$)=57.84; Uniform W4A8 ($B=0.5$)=0.20; Genetic algorithm=0.13; CMA-ES=0.09; Fisher-MCKP (HAWQ-V2-style)=0.25; Probe-MCKP (one-shot)=33.46; \textbf{ABC-Q (proposed)}=38.80
+ImageNet resnet18 B=0.5: FP32=57.16; Uniform W8A8 ($B=1.0$)=57.12; Uniform W4A8 ($B=0.5$)=34.70; Genetic algorithm=0.11; CMA-ES=0.23; Fisher-MCKP (HAWQ-V2-style)=2.59; Probe-MCKP (one-shot)=32.19; \textbf{ABC-Q (proposed)}=34.70
+sweep mobilenetv2 B=0.6: probe 33.46 fisher 0.25
+sweep mobilenetv2 B=0.7: probe 47.03 fisher 0.77
+sweep mobilenetv2 B=0.8: probe 52.89 fisher 42.05
+sweep mobilenetv2 B=0.9: probe 52.95 fisher 56.92
+sweep resnet18 B=0.4: probe 0.13 fisher 0.14
+sweep resnet18 B=0.5: probe 32.19 fisher 2.59
+sweep resnet18 B=0.6: probe 43.35 fisher 38.36
+sweep resnet18 B=0.7: probe 50.61 fisher 40.26

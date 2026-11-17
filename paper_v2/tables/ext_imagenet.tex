@@ -1,0 +1,21 @@
+\begin{table}[t]
+\centering
+\caption{ImageNet-pretrained CNNs, weights mixed in $\{2,4,8\}$ bits with 8-bit activations (W$\{2,4,8\}$A8). Top-1 accuracy (\%) on 9{,}488 ImageNetV2 test images (512 further images are used for calibration), mean $\pm$ std over 3 seeds. Budgets: MobileNetV2 $B=0.6$, ResNet-18 $B=0.5$ (fraction of W8A8 BOPs).}
+\label{tab:ext_imagenet}
+\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{lcc}
+\toprule
+Method & MobileNetV2 ($B=0.6$) & ResNet-18 ($B=0.5$) \\
+\midrule
+FP32 & 58.75 & 57.16 \\
+Uniform W8A8 ($B=1.0$) & 57.84 & 57.12 \\
+Uniform W4A8 ($B=0.5$) & 0.20 & \textbf{34.70} \\
+\midrule
+Genetic algorithm & 0.13 $\pm$ 0.03 & 0.11 $\pm$ 0.04 \\
+CMA-ES & 0.09 $\pm$ 0.01 & 0.23 $\pm$ 0.16 \\
+Fisher-MCKP (HAWQ-V2-style) & 0.25 & 2.59 \\
+Probe-MCKP (one-shot) & 33.46 & 32.19 \\
+\textbf{ABC-Q (proposed)} & \textbf{38.80 $\pm$ 0.50} & \textbf{34.70 $\pm$ 0.00} \\
+\bottomrule
+\end{tabular}}
+\end{table}

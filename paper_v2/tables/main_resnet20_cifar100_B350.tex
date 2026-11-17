@@ -1,6 +1,6 @@
 \begin{table}[t]
 \centering
-\caption{ResNet-20 / CIFAR-100, BOPs budget $B=0.35$ (fraction of W8A8), $E=300$ evaluations, $n=10$ seeds. Float test accuracy 59.73\%. Calib./test: PTQ accuracy (no fine-tuning) on the 1k calibration and 10k test sets. $p$: Holm-corrected two-sided Wilcoxon vs.\ ABC-Q v2 on calibration accuracy; $A_{12}$: Vargha--Delaney effect size (probability that v2 is better). Friedman $p=9.8e-08$.}
+\caption{ResNet-20 / CIFAR-100, BOPs budget $B=0.35$ (fraction of W8A8), $E=300$ evaluations, $n=10$ seeds. Float test accuracy 59.73\%. Calib./test: PTQ accuracy (no fine-tuning) on the 1k calibration and 10k test sets. $p$: Holm-corrected two-sided Wilcoxon vs.\ ABC-Q on calibration accuracy; $A_{12}$: Vargha--Delaney effect size (probability that ABC-Q is better). Friedman $p=9.8e-08$.}
 \label{tab:main_resnet20_cifar100_B350}
 \footnotesize\setlength{\tabcolsep}{3.5pt}
 \resizebox{\linewidth}{!}{\begin{tabular}{lcccccc}
@@ -11,10 +11,10 @@ Uniform W4A4 & 42.30 & 41.47 & 0.250 & 4.00 & -- & -- \\
 Random search & 13.98 $\pm$ 7.46 & 13.86 $\pm$ 7.77 & 0.332 & 4.37 & 0.008 & 1.00 \\
 Genetic algorithm & 53.82 $\pm$ 0.73 & 51.16 $\pm$ 0.76 & 0.335 & 4.35 & 0.008 & 0.94 \\
 CMA-ES & 47.22 $\pm$ 4.55 & 46.34 $\pm$ 4.55 & 0.331 & 4.44 & 0.008 & 1.00 \\
-ABC-Q v1 (original) & 32.30 $\pm$ 11.13 & 31.24 $\pm$ 11.07 & 0.327 & 4.41 & 0.008 & 1.00 \\
+ABC-GP (gradient prior) & 32.30 $\pm$ 11.13 & 31.24 $\pm$ 11.07 & 0.327 & 4.41 & 0.008 & 1.00 \\
 Fisher-MCKP (HAWQ-V2-style) & 53.00 & 51.47 & 0.347 & 5.19 & -- & -- \\
 Probe-MCKP (one-shot) & 54.40 & \textbf{52.73} & 0.328 & 4.24 & -- & -- \\
-\textbf{ABC-Q v2 (proposed)} & \textbf{55.30 $\pm$ 0.21} & 52.64 $\pm$ 0.07 & 0.350 & 4.26 & -- & -- \\
+\textbf{ABC-Q (proposed)} & \textbf{55.30 $\pm$ 0.21} & 52.64 $\pm$ 0.07 & 0.350 & 4.26 & -- & -- \\
 \bottomrule
 \end{tabular}}
 \end{table}

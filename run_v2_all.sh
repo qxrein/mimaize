@@ -4,7 +4,7 @@
 # (depthwise convolutions are much faster on the CPU with tensorflow-metal). Every step is resumable.
 set -u
 cd "$(dirname "$0")"
-PY=.venv/bin/python
+PY=.venv-tf/bin/python  # TensorFlow env (numpy<2); PyTorch experiments use .venv
 export TF_CPP_MIN_LOG_LEVEL=2
 mkdir -p results_v2/logs
 E=300

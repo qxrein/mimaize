@@ -38,8 +38,8 @@ PRETTY_BB = {"resnet20": "ResNet-20", "mobilenetv2": "MobileNetV2", "efficientne
 PRETTY_DS = {"cifar10": "CIFAR-10", "cifar100": "CIFAR-100"}
 MAIN = ["random", "ga", "cmaes", "abc_v1", "fisher_mckp", "probe_mckp", "abc_v2"]
 PRETTY = {"random": "Random search", "ga": "Genetic algorithm", "cmaes": "CMA-ES",
-          "abc_v1": "ABC-Q v1 (original)", "fisher_mckp": "Fisher-MCKP (HAWQ-V2-style)",
-          "probe_mckp": "Probe-MCKP (one-shot)", "abc_v2": "\\textbf{ABC-Q v2 (proposed)}",
+          "abc_v1": "ABC-GP (gradient prior)", "fisher_mckp": "Fisher-MCKP (HAWQ-V2-style)",
+          "probe_mckp": "Probe-MCKP (one-shot)", "abc_v2": "\\textbf{ABC-Q (proposed)}",
           "abc_v2_noscreen": "-- surrogate screening", "abc_v2_nolearn": "-- online surrogate refit",
           "abc_v2_noknap": "-- knapsack initialisation", "abc_v2_noshare": "-- information sharing",
           "abc_v2_hc": "single source (hill climber)", "abc_v2_K1": "$K=1$", "abc_v2_K12": "$K=12$"}
@@ -168,8 +168,8 @@ def main_tables(summary: List[str]) -> None:
                    f"$E={runs[0]['evals_used'] if runs else 0}$ evaluations, $n={len(seeds)}$ seeds. "
                    f"Float test accuracy {100 * st['float_test']:.2f}\\%. "
                    f"Calib./test: PTQ accuracy (no fine-tuning) on the 1k calibration and 10k test sets. "
-                   f"$p$: Holm-corrected two-sided Wilcoxon vs.\\ ABC-Q v2 on calibration accuracy; "
-                   f"$A_{{12}}$: Vargha--Delaney effect size (probability that v2 is better). "
+                   f"$p$: Holm-corrected two-sided Wilcoxon vs.\\ ABC-Q on calibration accuracy; "
+                   f"$A_{{12}}$: Vargha--Delaney effect size (probability that ABC-Q is better). "
                    f"Friedman $p={fr_p:.2g}$.")
             with open(os.path.join(TAB, name + ".tex"), "w") as f:
                 f.write("\\begin{table}[t]\n\\centering\n\\caption{" + cap + "}\n\\label{tab:" + name + "}\n")
@@ -193,7 +193,7 @@ def main_tables(summary: List[str]) -> None:
             cols = len(cfgs) * len(budgets)
             f.write("\\begin{table*}[t]\n\\centering\n\\caption{Test accuracy (\\%, mean over seeds, PTQ without "
                     "fine-tuning) of the configuration returned by each method under BOPs budget $B$. "
-                    "Bold: best per column; $^{\\dagger}$: ABC-Q v2 significantly better (Holm-corrected Wilcoxon on "
+                    "Bold: best per column; $^{\\dagger}$: ABC-Q significantly better (Holm-corrected Wilcoxon on "
                     "test accuracy, $p<0.05$); $^{\\ddagger}$: significantly worse.}\n\\label{tab:overview_test}\n"
                     "\\footnotesize\\setlength{\\tabcolsep}{3pt}\n")
             f.write("\\begin{tabular}{l" + "c" * cols + "}\n\\toprule\n")
@@ -248,14 +248,14 @@ def ablation_table(summary: List[str]) -> None:
                 t = np.array([M[v][s]["test_acc"] for s in seeds if s in M[v]])
                 p = adj.get(v)
                 pcell = "--" if p is None else (f"{p:.3f}" if p >= 0.001 else "$<$0.001")
-                lab = "ABC-Q v2 (full)" if v == "abc_v2" else PRETTY[v]
+                lab = "ABC-Q (full)" if v == "abc_v2" else PRETTY[v]
                 lines.append(f"{lab} & {fmt(c.mean(), c.std(ddof=1))} & {fmt(t.mean(), t.std(ddof=1))} & "
                              f"{100 * (c.mean() - v2.mean()):+.2f} & {pcell} \\\\")
                 summary.append(f"  ablation {bb}/{ds} B={B} {v:18s} calib {100 * c.mean():.2f} test {100 * t.mean():.2f} p={p}")
             blocks.append((f"{PRETTY_BB[bb]} / {PRETTY_DS[ds]}, $B={B:.2f}$", lines))
     if blocks:
         with open(os.path.join(TAB, "ablation.tex"), "w") as f:
-            f.write("\\begin{table}[t]\n\\centering\n\\caption{Component ablation of ABC-Q v2 (calibration and test "
+            f.write("\\begin{table}[t]\n\\centering\n\\caption{Component ablation of ABC-Q (calibration and test "
                     "accuracy, \\%, mean $\\pm$ std over seeds; $\\Delta$: change in calibration accuracy vs.\\ the full "
                     "method; $p$: Holm-corrected two-sided Wilcoxon).}\n\\label{tab:ablation}\n"
                     "\\footnotesize\\setlength{\\tabcolsep}{3pt}\n\\begin{tabular}{lcccc}\n\\toprule\n"
@@ -289,9 +289,9 @@ def sensitivity_correlation(summary: List[str]) -> None:
     if rows:
         with open(os.path.join(TAB, "sens_corr.tex"), "w") as f:
             f.write("\\begin{table}[t]\n\\centering\n\\caption{Do cheap sensitivity proxies predict the measured "
-                    "single-layer accuracy drop $\\Delta_i(b)$? Spearman rank correlation $\\rho$ between the v1 "
-                    "gradient prior $\\tilde s_i$ (resp.\\ the HAWQ-V2-style Fisher score $\\Omega_i(b)$) and "
-                    "$\\Delta_i(b)$, and overlap between the v1 top-25\\% `sensitive' set and the 25\\% of layers "
+                    "single-layer accuracy drop $\\Delta_i(b)$? Spearman rank correlation $\\rho$ between the "
+                    "gradient-magnitude prior $\\tilde s_i$ (resp.\\ the HAWQ-V2-style Fisher score $\\Omega_i(b)$) and "
+                    "$\\Delta_i(b)$, and overlap between the gradient-prior top-25\\% `sensitive' set and the 25\\% of layers "
                     "with the largest measured 2-bit drop.}\n\\label{tab:sens_corr}\n\\footnotesize\n"
                     "\\begin{tabular}{lccccccc}\n\\toprule\n"
                     "Model & $L$ & $\\rho(\\tilde s,\\Delta_4)$ & $\\rho(\\tilde s,\\Delta_2)$ & $\\rho(\\Omega_4,\\Delta_4)$ & "
@@ -405,7 +405,7 @@ def bitmap_figure() -> None:
         ax.set_xlim(-0.6, L - 0.4)
         ax.set_ylabel("fraction of seeds", fontsize=7)
         ax.tick_params(labelsize=6)
-        ax.set_title(f"{PRETTY_BB[bb]} / {PRETTY_DS[ds]}, B={B:.2f}: ABC-Q v2 allocation (layer index, input→output)", fontsize=8)
+        ax.set_title(f"{PRETTY_BB[bb]} / {PRETTY_DS[ds]}, B={B:.2f}: ABC-Q allocation (layer index, input→output)", fontsize=8)
     h1, l1 = axes[0, 0].get_legend_handles_labels()
     fig.legend(h1 + [plt.Line2D([], [], color="r", marker=".")], l1 + ["measured $\\Delta_i(2)$"],
                loc="lower center", ncol=4, fontsize=7, frameon=False)
@@ -432,9 +432,9 @@ def wall_table(summary: List[str]) -> None:
         with open(os.path.join(TAB, "wall.tex"), "w") as f:
             f.write("\\begin{table}[t]\n\\centering\n\\caption{Mean wall-clock time per search run (s) on an Apple M4 "
                     "laptop (16\\,GB). All stochastic methods use the same number of distinct evaluations, so wall time is "
-                    "dominated by forward passes; ABC-Q v2 includes probes and surrogate overhead.}\n\\label{tab:wall}\n"
+                    "dominated by forward passes; ABC-Q includes probes and surrogate overhead.}\n\\label{tab:wall}\n"
                     "\\footnotesize\\setlength{\\tabcolsep}{2.5pt}\n\\begin{tabular}{l" + "c" * len(MAIN) + "}\n\\toprule\n"
-                    "Model & Random & GA & CMA-ES & v1 & Fisher & Probe & v2 \\\\\n\\midrule\n" + "\n".join(lines) +
+                    "Model & Random & GA & CMA-ES & ABC-GP & Fisher & Probe & ABC-Q \\\\\n\\midrule\n" + "\n".join(lines) +
                     "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n")
 
 
@@ -460,7 +460,7 @@ def models_table() -> None:
 def qat_table(summary: List[str]) -> None:
     order = ["uniform4", "fisher_mckp", "ga", "cmaes", "abc_v2"]
     names = {"uniform4": "Uniform W4A4", "fisher_mckp": "Fisher-MCKP", "ga": "GA", "cmaes": "CMA-ES",
-             "abc_v2": "ABC-Q v2"}
+             "abc_v2": "ABC-Q"}
     cfgs = []
     for bb, ds in CONFIGS:
         p = os.path.join(RES, bb, ds, "qat_B250.json")
