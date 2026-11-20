@@ -196,9 +196,50 @@ def gptq_tables(summary):
         f.write("\\bottomrule\n\\end{tabular}}\n\\end{table}\n")
 
 
+def downstream_table(summary):
+    cols = [(k, n) for k, n in LLMS if os.path.exists(os.path.join(RES, "gptq", f"{k}_extra.json"))]
+    if not cols:
+        return
+    tasks = [("arc_easy", "ARC-e"), ("arc_challenge", "ARC-c"), ("hellaswag", "HellaSwag"), ("piqa", "PIQA"),
+             ("winogrande", "WinoG."), ("boolq", "BoolQ"), ("average", "Avg.")]
+    rows = [("fp16", "FP16"), ("gptq4", "Uniform 4-bit GPTQ"), ("gptq3", "Uniform 3-bit GPTQ"),
+            ("probe_mckp", "Probe-MCKP + GPTQ"), ("abc_v2", "\\textbf{ABC-Q + GPTQ}")]
+    three = ("gptq3", "probe_mckp", "abc_v2")
+    with open(os.path.join(TAB, "ext_downstream.tex"), "w") as f:
+        f.write("\\begin{table*}[t]\n\\centering\n\\caption{Downstream evaluation of the GPTQ-quantized language models: "
+                "C4 perplexity (lower is better; 256 $\\times$ 2048 validation tokens) and zero-shot accuracy (\\%, higher "
+                "is better; full test/validation sets; ARC-c and HellaSwag length-normalised). The 3-bit rows use an "
+                "average of $3.0$ bits per weight; uniform 4-bit uses $33\\%$ more weight memory. Bold: best 3-bit result "
+                "per model and column.}\n\\label{tab:ext_downstream}\n\\footnotesize\n"
+                "\\resizebox{\\linewidth}{!}{\\begin{tabular}{llcccccccc}\n\\toprule\n")
+        f.write("Model & Method & C4 $\\downarrow$ & " + " & ".join(t for _, t in tasks) + " \\\\\n")
+        for k, name in cols:
+            d = json.load(open(os.path.join(RES, "gptq", f"{k}_extra.json")))
+            f.write("\\midrule\n")
+            for ri, (key, lab) in enumerate(rows):
+                if key not in d:
+                    continue
+                cells = []
+                c4 = d[key]["ppl_c4_ctx2048"]
+                best = min(d[x]["ppl_c4_ctx2048"] for x in three if x in d)
+                s = f"{c4:.2f}"
+                cells.append(f"\\textbf{{{s}}}" if key in three and np.isclose(c4, best) else s)
+                for t, _ in tasks:
+                    v = 100 * d[key]["zero_shot"][t]
+                    bt = max(100 * d[x]["zero_shot"][t] for x in three if x in d)
+                    s = f"{v:.1f}"
+                    cells.append(f"\\textbf{{{s}}}" if key in three and np.isclose(v, bt) else s)
+                mname = f"\\multirow{{{len(rows)}}}{{*}}{{{name}}}" if ri == 0 else ""
+                f.write(f"{mname} & {lab} & " + " & ".join(cells) + " \\\\\n")
+            summary.append(f"DOWNSTREAM {k}: " + "; ".join(
+                f"{x} c4={d[x]['ppl_c4_ctx2048']:.2f} avg={100 * d[x]['zero_shot']['average']:.1f}" for x in d))
+        f.write("\\bottomrule\n\\end{tabular}}\n\\end{table*}\n")
+
+
 def main():
     summary = []
     gptq_tables(summary)
+    downstream_table(summary)
     llm_table(summary)
     img_table(summary)
     sweep_table(summary)

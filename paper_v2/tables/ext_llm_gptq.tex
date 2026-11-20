@@ -1,0 +1,24 @@
+\begin{table*}[t]
+\centering
+\caption{ABC-Q combined with GPTQ: WikiText-2 perplexity (lower is better) with the standard protocol (whole test set, context 2048). Mixed-precision rows use an average of $3.0$ bits per weight (achieved average in parentheses) with bit-widths searched by each method on GPTQ-quantized layers; the configuration with the best \emph{calibration} score among the seeds is then quantized with sequential GPTQ (128 calibration sequences of 2048 WikiText-2 training tokens, group size 128). Bold: best 3-bit result per model.}
+\label{tab:ext_llm_gptq}
+\footnotesize
+\resizebox{\linewidth}{!}{\begin{tabular}{lcccc}
+\toprule
+Method & OPT-125M & OPT-350M & Qwen2.5-0.5B & Llama-3.2-1B \\
+\midrule
+FP16 (16 bits) & 27.66 & 22.00 & 13.07 & 9.75 \\
+\midrule
+Uniform 4-bit, RTN & 35.16 & 25.14 & 15.57 & 11.88 \\
+Uniform 4-bit, GPTQ & 33.65 & 23.96 & 14.09 & 10.65 \\
+\midrule
+Uniform 3-bit, RTN & 217.79 & 211.73 & 65.78 & 225.88 \\
+Uniform 3-bit, GPTQ & 88.70 & 46.37 & 20.81 & 18.84 \\
+Genetic algorithm + GPTQ & 52.34 (2.99) & 51.29 (3.00) & 25.15 (2.99) & 18.32 (3.00) \\
+CMA-ES + GPTQ & 47.36 (2.98) & 38.10 (2.99) & 26.94 (3.00) & 20.53 (2.99) \\
+Fisher-MCKP (HAWQ-V2-style) + GPTQ & 53.24 (2.97) & 37.77 (2.94) & 29.73 (2.98) & 23.49 (2.98) \\
+Probe-MCKP + GPTQ & 42.33 (2.97) & 32.02 (2.94) & 20.37 (2.97) & 15.40 (2.98) \\
+\textbf{ABC-Q + GPTQ (proposed)} & \textbf{41.66} (3.00) & \textbf{29.73} (3.00) & \textbf{18.87} (3.00) & \textbf{14.62} (3.00) \\
+\bottomrule
+\end{tabular}}
+\end{table*}

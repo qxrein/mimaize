@@ -60,7 +60,9 @@ allocation collapses while ABC-Q keeps a working network, and to weight-only qua
 language models (OPT-125M/350M, Qwen2.5-0.5B, Llama-3.2-1B). Combined with GPTQ, ABC-Q gives the best
 3-bit models in every case, reducing WikiText-2 perplexity relative to uniform 3-bit GPTQ by $9$--$53\%$
 (Llama-3.2-1B: $18.84\to14.62$, FP16 $9.75$) and closing up to $85\%$ of the gap to uniform 4-bit GPTQ at
-$25\%$ less weight memory, while being far more repeatable across seeds than GA and CMA-ES. All per-run results are openly available.
+$25\%$ less weight memory, while being far more repeatable across seeds than GA and CMA-ES. The gains
+carry over to C4 perplexity and to zero-shot accuracy on six standard tasks (Llama-3.2-1B: $46.5\%\to51.7\%$
+average at 3 bits). All per-run results are openly available.
 \end{abstract}
 
 \noindent\textbf{Keywords:} mixed-precision quantization; artificial bee colony; surrogate-assisted
@@ -499,7 +501,12 @@ layer is GPTQ-quantized once at every bit-width from Hessians of the full-precis
 (128 sequences of 512 training tokens) and cached, so any allocation can be assembled and evaluated in one
 forward pass; the selected allocation is then quantized with standard sequential GPTQ (128 sequences of
 2048 training tokens) and evaluated with the standard protocol of \citet{Frantar2023GPTQ}: perplexity on the
-whole WikiText-2 test set with context 2048. The evaluation budget is $E=2L+201$ (probes plus 200 search
+whole WikiText-2 test set with context 2048. The GPTQ models are further evaluated by C4 perplexity
+(256 sequences of 2048 validation tokens, the protocol of \citet{Frantar2023GPTQ}), i.e.\ on a corpus not
+used for calibration, and by zero-shot accuracy on six standard tasks with the log-likelihood protocol of
+the LM Evaluation Harness: ARC-Easy and ARC-Challenge \citep{Clark2018ARC}, HellaSwag \citep{Zellers2019HellaSwag},
+PIQA \citep{Bisk2020PIQA}, WinoGrande \citep{Sakaguchi2020WinoGrande} and BoolQ \citep{Clark2019BoolQ}, using
+the full test or validation sets. The evaluation budget is $E=2L+201$ (probes plus 200 search
 evaluations); because each LLM evaluation is expensive we run GA, CMA-ES and ABC-Q with three seeds and
 omit random search and ABC-GP, which were clearly the weakest methods on CIFAR.
 
@@ -544,6 +551,22 @@ $3.75$ and $4.00$ bits), whereas the large MLP projections, which hold $84\%$ of
 at 3 bits and the budget is balanced by 2-bit query and gate projections in a few blocks. The down
 projections of the second and last blocks are raised to 4 bits. Of the 112 layers, 11 are quantized to
 2 bits, 63 to 3 bits and 38 to 4 bits, a layout that uniform precision cannot express.
+
+\input{tables/ext_downstream}
+
+\paragraph{Downstream evaluation.} Table~\ref{tab:ext_downstream} checks that the gains are not specific to
+WikiText-2. On C4, a corpus not used for calibration or search, ABC-Q + GPTQ again gives the lowest 3-bit
+perplexity on all four models, $9$--$52\%$ below uniform 3-bit GPTQ (Llama-3.2-1B: $36.20\to26.52$). In
+zero-shot accuracy it is the best 3-bit model on OPT-350M, Qwen2.5-0.5B and Llama-3.2-1B; on Llama-3.2-1B
+it raises the six-task average from $46.5\%$ (uniform 3-bit GPTQ) to $51.7\%$, against $59.0\%$ for uniform
+4-bit GPTQ and $61.3\%$ in FP16. On OPT-125M, whose accuracies are close to chance on several tasks,
+ABC-Q ($40.7\%$) and Probe-MCKP ($41.0\%$) are within noise of each other and both clearly above uniform
+3-bit GPTQ ($38.3\%$). On Qwen2.5-0.5B the one-shot Probe-MCKP allocation is worse than uniform 3-bit on
+both C4 and zero-shot accuracy, while the searched ABC-Q allocation is better than both, illustrating
+that the search step, not only the probes, is what makes the allocation robust. (These downstream runs
+re-quantize each model with GPTQ on the same GPU; WikiText-2 perplexities match
+Table~\ref{tab:ext_llm_gptq} up to GPU floating-point variation, e.g.\ $41.06$ vs.\ $41.66$ for ABC-Q on
+OPT-125M.)
 
 \input{tables/ext_llm}
 
@@ -611,7 +634,8 @@ allocation collapse under a tight budget while ABC-Q keeps a working network (al
 only matches uniform W4A8). On four language models from 125M to 1.2B parameters, ABC-Q combined with
 GPTQ produces the best 3-bit models in every case ($9$--$53\%$ lower perplexity than uniform 3-bit GPTQ),
 and there, unlike on CIFAR, the population search adds a consistent improvement over its one-shot knapsack
-starting point. Searching the allocation on the same quantizer that is deployed (GPTQ-aware search) is
+starting point; the improvements hold on C4 and in zero-shot accuracy on six downstream tasks
+($+5.2$ points on Llama-3.2-1B over uniform 3-bit GPTQ). Searching the allocation on the same quantizer that is deployed (GPTQ-aware search) is
 what makes the method a practical post-training tool for language models.
 
 Future work should (i) measure latency and energy on hardware with sub-8-bit kernels,
