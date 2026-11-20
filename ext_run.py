@@ -23,6 +23,8 @@ import time
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--task", required=True, choices=["imagenet", "llm"])
+ap.add_argument("--imagenet_set", default="v2", choices=["v2", "val"],
+                help="ImageNetV2 matched-frequency (v2) or the original ILSVRC-2012 validation set (val)")
 ap.add_argument("--quant", default="rtn", choices=["rtn", "gptq"],
                 help="LLM layer quantizer used inside the search: round-to-nearest or GPTQ (cached per layer/bit)")
 ap.add_argument("--model", required=True)
@@ -45,7 +47,8 @@ from ext_engine import TorchQuantEvaluator, group_asymmetric, per_channel_symmet
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(ROOT, "ext_data")
-OUT = os.path.join(ROOT, "results_ext", args.task + ("_gptq" if args.quant == "gptq" else ""), args.model)
+OUT = os.path.join(ROOT, "results_ext", args.task + ("_gptq" if args.quant == "gptq" else "")
+                   + ("_val" if args.task == "imagenet" and args.imagenet_set == "val" else ""), args.model)
 os.makedirs(OUT, exist_ok=True)
 os.makedirs(DATA, exist_ok=True)
 DEV = torch.device("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
@@ -97,7 +100,11 @@ def setup_imagenet():
     std = torch.tensor(getattr(proc, "image_std", [0.229, 0.224, 0.225]), device=DEV).view(1, 3, 1, 1)
     model = AutoModelForImageClassification.from_pretrained(name).to(DEV).eval()
     offset = 1 if model.config.num_labels == 1001 else 0  # TF-slim MobileNets have a background class
-    x, y = load_imagenetv2()
+    if args.imagenet_set == "val":  # ILSVRC-2012 validation set, cache built by ext_download_imagenet.py
+        x = np.load(os.path.join(DATA, "imagenet_val_224_x.npy"), mmap_mode="r")
+        y = np.load(os.path.join(DATA, "imagenet_val_224_y.npy"))
+    else:
+        x, y = load_imagenetv2()
     perm = np.random.RandomState(0).permutation(len(x))
     ci, ti = perm[: args.calib], perm[args.calib:]
 
@@ -192,6 +199,16 @@ def build_gptq_cache(model, layers, bits, tr, nsamples=128, seqlen=512):
     cdir = os.path.join(DATA, "gptq_cache", args.model)
     os.makedirs(cdir, exist_ok=True)
     fn = lambda i, b: os.path.join(cdir, f"{i}_{b}.pt")
+    # drop truncated/corrupt cache files (e.g. from a run interrupted mid-write); their blocks are rebuilt
+    for i in range(len(layers)):
+        for b in bits:
+            p = fn(i, b)
+            if os.path.exists(p):
+                try:
+                    torch.load(p, map_location="cpu", mmap=True)
+                except Exception:
+                    print(f"[gptq-cache] removing corrupt {os.path.basename(p)}", flush=True)
+                    os.remove(p)
     if not all(os.path.exists(fn(i, b)) for i in range(len(layers)) for b in bits):
         rng = np.random.RandomState(1)
         starts = rng.randint(0, len(tr) - seqlen - 1, size=nsamples)
@@ -237,7 +254,9 @@ def build_gptq_cache(model, layers, bits, tr, nsamples=128, seqlen=512):
                 W = layers[i][1].weight.data.to(linalg)
                 for b in bits:
                     q = gptq_layer(W, Hi, b, 128, 0.01).to(torch.float16).cpu()
-                    torch.save(q, fn(i, b))
+                    tmp = fn(i, b) + ".tmp"
+                    torch.save(q, tmp)
+                    os.replace(tmp, fn(i, b))  # atomic: a crash never leaves a half-written cache file
             del H
             if DEV.type == "mps":
                 torch.mps.empty_cache()
