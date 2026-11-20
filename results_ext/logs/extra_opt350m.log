@@ -1,0 +1,17 @@
+[extra] tasks: {'arc_easy': 2376, 'arc_challenge': 1172, 'hellaswag': 10042, 'piqa': 1838, 'boolq': 3270, 'winogrande': 1267} c4 tokens: 524288
+[gptq] model=opt350m device=cuda linalg=cuda
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 9654.15it/s]
+[extra] fp16 c4=22.59 zs={'arc_easy': 0.4541245791245791, 'arc_challenge': 0.2363481228668942, 'hellaswag': 0.3694483170683131, 'piqa': 0.6507072905331882, 'boolq': 0.5663608562691131, 'winogrande': 0.5240726124704025, 'average': 0.4668436297220817}
+[gptq] fp16         bits=16.00 ppl(2048,full)=22.00 ppl(512,65k)=34.26 2100s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 10351.17it/s]
+[extra] gptq3 c4=43.28 zs={'arc_easy': 0.3691077441077441, 'arc_challenge': 0.25426621160409557, 'hellaswag': 0.3298147779326827, 'piqa': 0.5946681175190425, 'boolq': 0.4761467889908257, 'winogrande': 0.5090765588003157, 'average': 0.4221800331591177}
+[gptq] gptq3        bits=3.00 ppl(2048,full)=46.37 ppl(512,65k)=78.88 1150s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 11309.09it/s]
+[extra] gptq4 c4=24.46 zs={'arc_easy': 0.45075757575757575, 'arc_challenge': 0.23378839590443687, 'hellaswag': 0.36914957179844654, 'piqa': 0.6425462459194777, 'boolq': 0.6051987767584098, 'winogrande': 0.5327545382794001, 'average': 0.4723658507362911}
+[gptq] gptq4        bits=4.00 ppl(2048,full)=23.96 ppl(512,65k)=37.85 1255s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 11619.98it/s]
+[extra] probe_mckp c4=33.71 zs={'arc_easy': 0.398989898989899, 'arc_challenge': 0.22525597269624573, 'hellaswag': 0.3367855008962358, 'piqa': 0.6060935799782372, 'boolq': 0.5978593272171254, 'winogrande': 0.4980268350434096, 'average': 0.44383518580352543}
+[gptq] probe_mckp   bits=2.94 ppl(2048,full)=32.02 ppl(512,65k)=48.81 1285s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 10558.69it/s]
+[extra] abc_v2 c4=31.30 zs={'arc_easy': 0.40446127946127947, 'arc_challenge': 0.2235494880546075, 'hellaswag': 0.3489344752041426, 'piqa': 0.6147986942328618, 'boolq': 0.5764525993883792, 'winogrande': 0.5311760063141279, 'average': 0.4498954237758997}
+[gptq] abc_v2       bits=3.00 ppl(2048,full)=29.73 ppl(512,65k)=45.70 1300s

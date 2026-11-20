@@ -17,5 +17,81 @@
     "wall_s": 1686.5279908180237,
     "nsamples": 128,
     "seqlen": 512
+  },
+  "gptq3": {
+    "ppl_c4_ctx2048": 82.07223253327702,
+    "zero_shot": {
+      "arc_easy": 0.3287037037037037,
+      "arc_challenge": 0.24658703071672355,
+      "hellaswag": 0.286795459071898,
+      "piqa": 0.5462459194776932,
+      "boolq": 0.38960244648318043,
+      "winogrande": 0.5027624309392266,
+      "average": 0.38344949839873754
+    },
+    "avg_bits": 3.0,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 89.0736586673505,
+    "ppl_wikitext2_ctx512_65k": 149.70366657003132,
+    "wall_s": 424.4569580554962,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "gptq4": {
+    "ppl_c4_ctx2048": 31.781255466190398,
+    "zero_shot": {
+      "arc_easy": 0.40614478114478114,
+      "arc_challenge": 0.22098976109215018,
+      "hellaswag": 0.3121888070105557,
+      "piqa": 0.6131664853101197,
+      "boolq": 0.5174311926605505,
+      "winogrande": 0.489344909234412,
+      "average": 0.42654432274209486
+    },
+    "avg_bits": 4.0,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 33.32992984964781,
+    "ppl_wikitext2_ctx512_65k": 51.589004741777586,
+    "wall_s": 463.1076502799988,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "probe_mckp": {
+    "ppl_c4_ctx2048": 40.81426295744213,
+    "zero_shot": {
+      "arc_easy": 0.36447811447811446,
+      "arc_challenge": 0.2295221843003413,
+      "hellaswag": 0.29725154351722766,
+      "piqa": 0.5957562568008705,
+      "boolq": 0.45137614678899085,
+      "winogrande": 0.5240726124704025,
+      "average": 0.41040947639265785
+    },
+    "avg_bits": 2.9652777777777777,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 41.95429173414111,
+    "ppl_wikitext2_ctx512_65k": 65.70222616115647,
+    "wall_s": 479.8657419681549,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "abc_v2": {
+    "ppl_c4_ctx2048": 39.77296819009354,
+    "zero_shot": {
+      "arc_easy": 0.37457912457912457,
+      "arc_challenge": 0.21843003412969283,
+      "hellaswag": 0.3040231029675364,
+      "piqa": 0.6077257889009793,
+      "boolq": 0.43363914373088686,
+      "winogrande": 0.5043409629044988,
+      "average": 0.40712302620211976
+    },
+    "avg_bits": 3.0,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 41.059816896379786,
+    "ppl_wikitext2_ctx512_65k": 63.94479287585879,
+    "wall_s": 495.81135058403015,
+    "nsamples": 128,
+    "seqlen": 2048
   }
 }

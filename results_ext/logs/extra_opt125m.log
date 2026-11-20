@@ -1,0 +1,31 @@
+Generating train split:   0%|          | 0/2251 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 2251/2251 [00:00<00:00, 66081.85 examples/s]
+Generating test split:   0%|          | 0/2376 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 2376/2376 [00:00<00:00, 287650.93 examples/s]
+Generating validation split:   0%|          | 0/570 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 570/570 [00:00<00:00, 166243.88 examples/s]
+Generating train split:   0%|          | 0/1119 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 1119/1119 [00:00<00:00, 297202.77 examples/s]
+Generating test split:   0%|          | 0/1172 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 1172/1172 [00:00<00:00, 258409.52 examples/s]
+Generating validation split:   0%|          | 0/299 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 299/299 [00:00<00:00, 150353.30 examples/s]
+Generating train split:   0%|          | 0/39905 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 39905/39905 [00:00<00:00, 389952.15 examples/s]Generating train split: 100%|██████████| 39905/39905 [00:00<00:00, 389259.27 examples/s]
+Generating test split:   0%|          | 0/10003 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 10003/10003 [00:00<00:00, 396466.05 examples/s]
+Generating validation split:   0%|          | 0/10042 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 10042/10042 [00:00<00:00, 515024.28 examples/s]
+Generating train split:   0%|          | 0/16113 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 16113/16113 [00:00<00:00, 1075679.96 examples/s]
+Generating validation split:   0%|          | 0/1838 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 1838/1838 [00:00<00:00, 545161.64 examples/s]
+Generating test split:   0%|          | 0/3084 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 3084/3084 [00:00<00:00, 947219.80 examples/s]
+Generating train split:   0%|          | 0/9427 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 9427/9427 [00:00<00:00, 621537.09 examples/s]
+Generating validation split:   0%|          | 0/3270 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 3270/3270 [00:00<00:00, 609951.71 examples/s]
+Generating train split:   0%|          | 0/40398 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 40398/40398 [00:00<00:00, 2798742.91 examples/s]
+Generating test split:   0%|          | 0/1767 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 1767/1767 [00:00<00:00, 750666.99 examples/s]
+Generating validation split:   0%|          | 0/1267 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 1267/1267 [00:00<00:00, 656234.03 examples/s]
+[extra] tasks: {'arc_easy': 2376, 'arc_challenge': 1172, 'hellaswag': 10042, 'piqa': 1838, 'boolq': 3270, 'winogrande': 1267} c4 tokens: 524288
+[gptq] model=opt125m device=cuda linalg=cuda
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 10828.90it/s]
+[extra] gptq3 c4=82.07 zs={'arc_easy': 0.3287037037037037, 'arc_challenge': 0.24658703071672355, 'hellaswag': 0.286795459071898, 'piqa': 0.5462459194776932, 'boolq': 0.38960244648318043, 'winogrande': 0.5027624309392266, 'average': 0.38344949839873754}
+[gptq] gptq3        bits=3.00 ppl(2048,full)=89.07 ppl(512,65k)=149.70 424s
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 8478.47it/s]
+[extra] gptq4 c4=31.78 zs={'arc_easy': 0.40614478114478114, 'arc_challenge': 0.22098976109215018, 'hellaswag': 0.3121888070105557, 'piqa': 0.6131664853101197, 'boolq': 0.5174311926605505, 'winogrande': 0.489344909234412, 'average': 0.42654432274209486}
+[gptq] gptq4        bits=4.00 ppl(2048,full)=33.33 ppl(512,65k)=51.59 463s
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 8255.18it/s]
+[extra] probe_mckp c4=40.81 zs={'arc_easy': 0.36447811447811446, 'arc_challenge': 0.2295221843003413, 'hellaswag': 0.29725154351722766, 'piqa': 0.5957562568008705, 'boolq': 0.45137614678899085, 'winogrande': 0.5240726124704025, 'average': 0.41040947639265785}
+[gptq] probe_mckp   bits=2.97 ppl(2048,full)=41.95 ppl(512,65k)=65.70 480s
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 11156.72it/s]
+[extra] abc_v2 c4=39.77 zs={'arc_easy': 0.37457912457912457, 'arc_challenge': 0.21843003412969283, 'hellaswag': 0.3040231029675364, 'piqa': 0.6077257889009793, 'boolq': 0.43363914373088686, 'winogrande': 0.5043409629044988, 'average': 0.40712302620211976}
+[gptq] abc_v2       bits=3.00 ppl(2048,full)=41.06 ppl(512,65k)=63.94 496s

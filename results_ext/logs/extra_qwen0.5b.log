@@ -1,0 +1,18 @@
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (528225 > 131072). Running this sequence through the model will result in indexing errors
+[extra] tasks: {'arc_easy': 2376, 'arc_challenge': 1172, 'hellaswag': 10042, 'piqa': 1838, 'boolq': 3270, 'winogrande': 1267} c4 tokens: 524288
+[gptq] model=qwen0.5b device=cuda linalg=cuda
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:48,  6.02it/s]Loading weights:  49%|████▉     | 143/290 [00:00<00:00, 655.12it/s]Loading weights:  78%|███████▊  | 226/290 [00:00<00:00, 673.42it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 605.71it/s]
+[extra] fp16 c4=20.38 zs={'arc_easy': 0.6452020202020202, 'arc_challenge': 0.3250853242320819, 'hellaswag': 0.5217088229436367, 'piqa': 0.7018498367791077, 'boolq': 0.617125382262997, 'winogrande': 0.56353591160221, 'average': 0.5624178830036756}
+[gptq] fp16         bits=16.00 ppl(2048,full)=13.07 ppl(512,65k)=17.46 1425s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:33,  8.51it/s]Loading weights:  55%|█████▍    | 159/290 [00:00<00:00, 843.36it/s]Loading weights:  87%|████████▋ | 253/290 [00:00<00:00, 876.79it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 806.10it/s]
+[extra] gptq3 c4=35.71 zs={'arc_easy': 0.5046296296296297, 'arc_challenge': 0.27986348122866894, 'hellaswag': 0.43019318860784705, 'piqa': 0.6458106637649619, 'boolq': 0.5706422018348624, 'winogrande': 0.5059194948697711, 'average': 0.48950977665595685}
+[gptq] gptq3        bits=3.00 ppl(2048,full)=20.81 ppl(512,65k)=29.48 2096s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  49%|████▉     | 143/290 [00:00<00:00, 1428.87it/s]Loading weights:  99%|█████████▊| 286/290 [00:00<00:00, 1271.59it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1307.37it/s]
+[extra] gptq4 c4=22.41 zs={'arc_easy': 0.6557239057239057, 'arc_challenge': 0.3430034129692833, 'hellaswag': 0.5070703047201752, 'piqa': 0.6882480957562568, 'boolq': 0.44862385321100917, 'winogrande': 0.55327545382794, 'average': 0.532657504368095}
+[gptq] gptq4        bits=4.00 ppl(2048,full)=14.09 ppl(512,65k)=19.20 2104s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  16%|█▌        | 46/290 [00:00<00:00, 459.20it/s]Loading weights:  61%|██████▏   | 178/290 [00:00<00:00, 961.99it/s]Loading weights:  96%|█████████▌| 279/290 [00:00<00:00, 968.27it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 944.89it/s]
+[extra] probe_mckp c4=37.59 zs={'arc_easy': 0.45707070707070707, 'arc_challenge': 0.2627986348122867, 'hellaswag': 0.4095797649870544, 'piqa': 0.6213275299238302, 'boolq': 0.5568807339449541, 'winogrande': 0.5082872928176796, 'average': 0.469324110592752}
+[gptq] probe_mckp   bits=2.97 ppl(2048,full)=20.37 ppl(512,65k)=28.33 2096s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   3%|▎         | 9/290 [00:00<00:03, 89.92it/s]Loading weights:  59%|█████▉    | 172/290 [00:00<00:00, 930.17it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 935.92it/s]
+[extra] abc_v2 c4=32.62 zs={'arc_easy': 0.5096801346801347, 'arc_challenge': 0.2909556313993174, 'hellaswag': 0.43507269468233417, 'piqa': 0.6430903155603918, 'boolq': 0.5877675840978593, 'winogrande': 0.5185477505919495, 'average': 0.4975190185019978}
+[gptq] abc_v2       bits=3.00 ppl(2048,full)=18.87 ppl(512,65k)=25.98 2124s
