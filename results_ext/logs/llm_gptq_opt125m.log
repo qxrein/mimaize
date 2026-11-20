@@ -1,0 +1,57 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Generating test split:   0%|          | 0/4358 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 4358/4358 [00:00<00:00, 140793.34 examples/s]
+Generating train split:   0%|          | 0/36718 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 36718/36718 [00:00<00:00, 654669.66 examples/s]
+Generating validation split:   0%|          | 0/3760 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 3760/3760 [00:00<00:00, 1016538.81 examples/s]
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 15445.02it/s]
+Loading weights: 100%|██████████| 197/197 [00:00<00:00, 12602.04it/s]
+[gptq-cache] block 1/12
+[gptq-cache] block 1/12
+[gptq-cache] block 2/12
+[gptq-cache] block 2/12
+[gptq-cache] block 3/12
+[gptq-cache] block 3/12
+[gptq-cache] block 4/12
+[gptq-cache] block 4/12
+[gptq-cache] block 5/12
+[gptq-cache] block 5/12
+[gptq-cache] block 6/12
+[gptq-cache] block 6/12
+[gptq-cache] block 7/12
+[gptq-cache] block 7/12
+[gptq-cache] block 8/12
+[gptq-cache] block 8/12
+[gptq-cache] block 9/12
+[gptq-cache] block 9/12
+[gptq-cache] block 10/12
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 12298.36it/s]
+[gptq-cache] block 1/12
+[gptq-cache] block 2/12
+[gptq-cache] block 3/12
+[gptq-cache] block 4/12
+[gptq-cache] block 5/12
+[gptq-cache] block 6/12
+[gptq-cache] block 7/12
+[gptq-cache] block 8/12
+[gptq-cache] block 9/12
+[gptq-cache] block 10/12
+[gptq-cache] block 11/12
+[gptq-cache] block 12/12
+[stats] L=72 float calib=-3.5862 test=42.2168 u2: -8.7840/7288.5050 u3: -4.8353/146.9347 u4: -3.7496/49.7484 setup 67s
+[run] B=0.75 ga           seed=0 calib=-4.4813 test=104.9089 cost=0.747 wall=45s
+[run] B=0.75 ga           seed=1 calib=-4.2402 test=84.9981 cost=0.748 wall=45s
+[run] B=0.75 ga           seed=2 calib=-4.1683 test=75.0664 cost=0.748 wall=49s
+[run] B=0.75 cmaes        seed=0 calib=-4.1528 test=76.0479 cost=0.745 wall=111s
+[run] B=0.75 cmaes        seed=1 calib=-4.1905 test=79.1662 cost=0.745 wall=151s
+[run] B=0.75 cmaes        seed=2 calib=-4.1611 test=78.1757 cost=0.750 wall=144s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 12276.80it/s]
+[stats] L=72 float calib=-3.5862 test=42.2168 u2: -8.7840/7288.5050 u3: -4.8353/146.9347 u4: -3.7496/49.7484 setup 7s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 16335.74it/s]
+[stats] L=72 float calib=-3.5862 test=42.2168 u2: -8.7840/7288.5050 u3: -4.8353/146.9347 u4: -3.7496/49.7484 setup 6s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 8613.88it/s]
+[stats] L=72 float calib=-3.5862 test=42.2168 u2: -8.7840/7288.5050 u3: -4.8353/146.9347 u4: -3.7496/49.7484 setup 7s

@@ -1,0 +1,24 @@
+[gptq] model=opt350m device=cuda linalg=cuda
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 11052.71it/s]
+[gptq] fp16         bits=16.00 ppl(2048,full)=22.00 ppl(512,65k)=34.26 77s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 12692.96it/s]
+[gptq] rtn3         bits=3.00 ppl(2048,full)=211.73 ppl(512,65k)=233.98 73s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 10624.94it/s]
+[gptq] rtn4         bits=4.00 ppl(2048,full)=25.14 ppl(512,65k)=39.74 50s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 11928.48it/s]
+[gptq] gptq3        bits=3.00 ppl(2048,full)=46.37 ppl(512,65k)=78.88 824s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 10992.16it/s]
+[gptq] gptq4        bits=4.00 ppl(2048,full)=23.96 ppl(512,65k)=37.85 488s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 11357.87it/s]
+[gptq] probe_mckp   bits=2.94 ppl(2048,full)=32.02 ppl(512,65k)=48.81 383s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 14339.25it/s]
+[gptq] fisher_mckp  bits=2.94 ppl(2048,full)=37.77 ppl(512,65k)=57.82 356s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 14265.59it/s]
+[gptq] ga           bits=3.00 ppl(2048,full)=51.29 ppl(512,65k)=75.96 336s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 9840.78it/s]
+[gptq] cmaes        bits=2.99 ppl(2048,full)=38.10 ppl(512,65k)=61.33 379s
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 8487.57it/s]
+[gptq] abc_v2       bits=3.00 ppl(2048,full)=29.73 ppl(512,65k)=45.70 516s
+[gptq] model=opt350m device=cuda linalg=cuda
+[gptq] model=opt350m device=cuda linalg=cuda
+[gptq] model=opt350m device=cuda linalg=cuda

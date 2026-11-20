@@ -1,0 +1,57 @@
+[gptq] model=qwen0.5b device=cuda linalg=cuda
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  36%|███▌      | 105/290 [00:00<00:00, 1045.69it/s]Loading weights:  72%|███████▏  | 210/290 [00:00<00:00, 980.46it/s] Loading weights: 100%|██████████| 290/290 [00:00<00:00, 965.33it/s]
+[gptq] fp16         bits=16.00 ppl(2048,full)=13.07 ppl(512,65k)=17.46 54s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:30,  9.60it/s]Loading weights:  58%|█████▊    | 169/290 [00:00<00:00, 971.81it/s]Loading weights:  93%|█████████▎| 269/290 [00:00<00:00, 976.41it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 918.90it/s]
+[gptq] rtn3         bits=3.00 ppl(2048,full)=65.78 ppl(512,65k)=89.85 54s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  43%|████▎     | 124/290 [00:00<00:00, 1236.65it/s]Loading weights:  86%|████████▌ | 248/290 [00:00<00:00, 1111.85it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1081.79it/s]
+[gptq] rtn4         bits=4.00 ppl(2048,full)=15.57 ppl(512,65k)=21.30 55s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  34%|███▍      | 98/290 [00:00<00:00, 965.96it/s]Loading weights:  81%|████████  | 234/290 [00:00<00:00, 1192.84it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1187.97it/s]
+[gptq] gptq3        bits=3.00 ppl(2048,full)=20.81 ppl(512,65k)=29.48 548s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  35%|███▍      | 101/290 [00:00<00:00, 963.70it/s]Loading weights:  77%|███████▋  | 222/290 [00:00<00:00, 1067.27it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1112.05it/s]
+[gptq] gptq4        bits=4.00 ppl(2048,full)=14.09 ppl(512,65k)=19.20 573s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:31,  9.09it/s]Loading weights:  86%|████████▌ | 250/290 [00:00<00:00, 1410.24it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1188.24it/s]
+Traceback (most recent call last):
+  File "/home/sneha/mimaize/ext_gptq.py", line 255, in <module>
+    main()
+  File "/home/sneha/mimaize/ext_gptq.py", line 194, in main
+    bits = allocation(name.replace("gptq_", ""), L)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_gptq.py", line 167, in allocation
+    runs = [json.loads(l) for l in open(os.path.join(ROOT, "results_ext", args.alloc_src, args.model, "runs.jsonl"))]
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sneha/mimaize/results_ext/llm_gptq/qwen0.5b/runs.jsonl'
+[gptq] model=qwen0.5b device=cuda linalg=cuda
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  47%|████▋     | 135/290 [00:00<00:00, 1334.41it/s]Loading weights:  93%|█████████▎| 269/290 [00:00<00:00, 1311.02it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1349.91it/s]
+Traceback (most recent call last):
+  File "/home/sneha/mimaize/ext_gptq.py", line 255, in <module>
+    main()
+  File "/home/sneha/mimaize/ext_gptq.py", line 194, in main
+    bits = allocation(name.replace("gptq_", ""), L)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_gptq.py", line 167, in allocation
+    runs = [json.loads(l) for l in open(os.path.join(ROOT, "results_ext", args.alloc_src, args.model, "runs.jsonl"))]
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sneha/mimaize/results_ext/llm_gptq/qwen0.5b/runs.jsonl'
+[gptq] model=qwen0.5b device=cuda linalg=cuda
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  45%|████▍     | 130/290 [00:00<00:00, 1298.69it/s]Loading weights:  90%|████████▉ | 260/290 [00:00<00:00, 1122.71it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1148.88it/s]
+Traceback (most recent call last):
+  File "/home/sneha/mimaize/ext_gptq.py", line 255, in <module>
+    main()
+  File "/home/sneha/mimaize/ext_gptq.py", line 194, in main
+    bits = allocation(name.replace("gptq_", ""), L)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_gptq.py", line 167, in allocation
+    runs = [json.loads(l) for l in open(os.path.join(ROOT, "results_ext", args.alloc_src, args.model, "runs.jsonl"))]
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sneha/mimaize/results_ext/llm_gptq/qwen0.5b/runs.jsonl'
+[gptq] model=qwen0.5b device=cuda linalg=cuda
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  26%|██▌       | 75/290 [00:00<00:00, 647.88it/s]Loading weights:  48%|████▊     | 140/290 [00:00<00:00, 524.92it/s]Loading weights:  67%|██████▋   | 195/290 [00:00<00:00, 531.13it/s]Loading weights:  86%|████████▌ | 249/290 [00:00<00:00, 516.95it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 538.43it/s]
+[gptq] probe_mckp   bits=2.97 ppl(2048,full)=20.37 ppl(512,65k)=28.33 725s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<03:42,  1.30it/s]Loading weights:  72%|███████▏  | 208/290 [00:00<00:00, 317.99it/s]Loading weights: 100%|██████████| 290/290 [00:01<00:00, 282.45it/s]
+[gptq] fisher_mckp  bits=2.98 ppl(2048,full)=29.73 ppl(512,65k)=40.07 774s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  28%|██▊       | 80/290 [00:00<00:00, 798.77it/s]Loading weights:  60%|█████▉    | 173/290 [00:00<00:00, 874.01it/s]Loading weights:  96%|█████████▌| 277/290 [00:00<00:00, 949.43it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 905.54it/s]
+[gptq] ga           bits=2.99 ppl(2048,full)=25.15 ppl(512,65k)=35.25 785s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:30,  9.55it/s]Loading weights:  55%|█████▍    | 159/290 [00:00<00:00, 900.63it/s]Loading weights:  86%|████████▌ | 250/290 [00:00<00:00, 814.83it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 729.96it/s]
+[gptq] cmaes        bits=3.00 ppl(2048,full)=26.94 ppl(512,65k)=37.87 813s
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  34%|███▍      | 99/290 [00:00<00:00, 856.17it/s]Loading weights:  91%|█████████▏| 265/290 [00:00<00:00, 1276.38it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1201.67it/s]
+[gptq] abc_v2       bits=3.00 ppl(2048,full)=18.87 ppl(512,65k)=25.98 831s

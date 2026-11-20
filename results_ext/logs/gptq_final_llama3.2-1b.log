@@ -1,0 +1,22 @@
+[gptq] model=llama3.2-1b device=cuda linalg=cuda
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<01:40,  1.45it/s]Loading weights:  58%|█████▊    | 84/146 [00:00<00:00, 140.23it/s]Loading weights:  87%|████████▋ | 127/146 [00:01<00:00, 148.02it/s]Loading weights: 100%|██████████| 146/146 [00:01<00:00, 123.56it/s]
+[gptq] fp16         bits=16.00 ppl(2048,full)=9.75 ppl(512,65k)=13.55 95s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<01:24,  1.72it/s]Loading weights:  72%|███████▏  | 105/146 [00:00<00:00, 204.96it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 185.42it/s]
+[gptq] rtn3         bits=3.00 ppl(2048,full)=225.88 ppl(512,65k)=321.64 136s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:37,  3.91it/s]Loading weights:  51%|█████▏    | 75/146 [00:00<00:00, 262.81it/s]Loading weights:  80%|████████  | 117/146 [00:00<00:00, 295.03it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 257.82it/s]
+[gptq] rtn4         bits=4.00 ppl(2048,full)=11.88 ppl(512,65k)=16.88 136s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:39,  3.69it/s]Loading weights:  51%|█████▏    | 75/146 [00:00<00:00, 245.65it/s]Loading weights:  78%|███████▊  | 114/146 [00:00<00:00, 260.30it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 233.72it/s]
+[gptq] gptq3        bits=3.00 ppl(2048,full)=18.84 ppl(512,65k)=31.41 836s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:50,  2.88it/s]Loading weights:  52%|█████▏    | 76/146 [00:00<00:00, 219.90it/s]Loading weights:  82%|████████▏ | 120/146 [00:00<00:00, 210.76it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 188.38it/s]
+[gptq] gptq4        bits=4.00 ppl(2048,full)=10.65 ppl(512,65k)=15.27 828s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:49,  2.96it/s]Loading weights:  52%|█████▏    | 76/146 [00:00<00:00, 218.27it/s]Loading weights:  80%|████████  | 117/146 [00:00<00:00, 238.72it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 195.30it/s]
+[gptq] probe_mckp   bits=2.98 ppl(2048,full)=15.40 ppl(512,65k)=22.83 830s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:45,  3.18it/s]Loading weights:  59%|█████▉    | 86/146 [00:00<00:00, 267.94it/s]Loading weights:  94%|█████████▍| 137/146 [00:00<00:00, 283.19it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 205.14it/s]
+[gptq] fisher_mckp  bits=2.98 ppl(2048,full)=23.49 ppl(512,65k)=35.60 826s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:33,  4.33it/s]Loading weights:  51%|█████▏    | 75/146 [00:00<00:00, 276.85it/s]Loading weights:  79%|███████▉  | 116/146 [00:00<00:00, 320.61it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 287.24it/s]
+[gptq] ga           bits=3.00 ppl(2048,full)=18.32 ppl(512,65k)=27.98 826s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:39,  3.70it/s]Loading weights:  58%|█████▊    | 84/146 [00:00<00:00, 282.81it/s]Loading weights:  89%|████████▉ | 130/146 [00:00<00:00, 307.90it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 273.16it/s]
+[gptq] cmaes        bits=2.99 ppl(2048,full)=20.53 ppl(512,65k)=31.72 829s
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:43,  3.32it/s]Loading weights:  64%|██████▎   | 93/146 [00:00<00:00, 283.68it/s]Loading weights:  96%|█████████▌| 140/146 [00:00<00:00, 307.73it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 263.93it/s]
+[gptq] abc_v2       bits=3.00 ppl(2048,full)=14.62 ppl(512,65k)=21.66 836s
+[gptq] model=llama3.2-1b device=cuda linalg=cuda

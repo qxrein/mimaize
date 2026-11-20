@@ -70,5 +70,23 @@
     "wall_s": 257.4565351009369,
     "nsamples": 128,
     "seqlen": 2048
+  },
+  "ga": {
+    "avg_bits": 2.9930555555555554,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 52.33527445162942,
+    "ppl_wikitext2_ctx512_65k": 81.5053905264146,
+    "wall_s": 205.53465270996094,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "cmaes": {
+    "avg_bits": 2.9791666666666665,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 47.35793496006719,
+    "ppl_wikitext2_ctx512_65k": 74.98122910520058,
+    "wall_s": 199.20521235466003,
+    "nsamples": 128,
+    "seqlen": 2048
   }
 }

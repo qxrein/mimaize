@@ -1,0 +1,92 @@
+{
+  "fp16": {
+    "avg_bits": 16.0,
+    "rounding": "none",
+    "ppl_wikitext2_ctx2048_full": 9.750881677430057,
+    "ppl_wikitext2_ctx512_65k": 13.548341160421108,
+    "wall_s": 94.57253575325012,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "rtn3": {
+    "avg_bits": 3.0,
+    "rounding": "rtn",
+    "ppl_wikitext2_ctx2048_full": 225.88099901955064,
+    "ppl_wikitext2_ctx512_65k": 321.6444652667731,
+    "wall_s": 135.86115741729736,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "rtn4": {
+    "avg_bits": 4.0,
+    "rounding": "rtn",
+    "ppl_wikitext2_ctx2048_full": 11.877772752310717,
+    "ppl_wikitext2_ctx512_65k": 16.882885991281874,
+    "wall_s": 136.14086437225342,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "gptq3": {
+    "avg_bits": 3.0,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 18.841901998201028,
+    "ppl_wikitext2_ctx512_65k": 31.406891536773873,
+    "wall_s": 835.7025837898254,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "gptq4": {
+    "avg_bits": 4.0,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 10.646804040126025,
+    "ppl_wikitext2_ctx512_65k": 15.267907534813702,
+    "wall_s": 828.0390787124634,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "probe_mckp": {
+    "avg_bits": 2.976293103448276,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 15.3965189819185,
+    "ppl_wikitext2_ctx512_65k": 22.827096811477922,
+    "wall_s": 829.54363322258,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "fisher_mckp": {
+    "avg_bits": 2.976293103448276,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 23.487613634928973,
+    "ppl_wikitext2_ctx512_65k": 35.59846197027526,
+    "wall_s": 825.8192777633667,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "ga": {
+    "avg_bits": 2.9989224137931036,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 18.3232418452326,
+    "ppl_wikitext2_ctx512_65k": 27.983479571909385,
+    "wall_s": 826.4060025215149,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "cmaes": {
+    "avg_bits": 2.9946120689655173,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 20.528328604346015,
+    "ppl_wikitext2_ctx512_65k": 31.717738300660407,
+    "wall_s": 828.7669134140015,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "abc_v2": {
+    "avg_bits": 3.0,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 14.622525783427879,
+    "ppl_wikitext2_ctx512_65k": 21.655511127355386,
+    "wall_s": 836.1479551792145,
+    "nsamples": 128,
+    "seqlen": 2048
+  }
+}

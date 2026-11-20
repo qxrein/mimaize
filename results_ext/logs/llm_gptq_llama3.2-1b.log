@@ -1,0 +1,37 @@
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (2436214 > 131072). Running this sequence through the model will result in indexing errors
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<01:30,  1.60it/s]Loading weights:  76%|███████▌  | 111/146 [00:00<00:00, 203.24it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 160.97it/s]
+[gptq-cache] block 1/16
+[gptq-cache] block 2/16
+[gptq-cache] block 3/16
+[gptq-cache] block 4/16
+[gptq-cache] block 5/16
+[gptq-cache] block 6/16
+[gptq-cache] block 7/16
+[gptq-cache] block 8/16
+[gptq-cache] block 9/16
+[gptq-cache] block 10/16
+[gptq-cache] block 11/16
+[gptq-cache] block 12/16
+[gptq-cache] block 13/16
+[gptq-cache] block 14/16
+[gptq-cache] block 15/16
+[gptq-cache] block 16/16
+[stats] L=112 float calib=-2.4721 test=13.5481 u2: -12.1721/197605.1675 u3: -3.5783/38.7612 u4: -2.6090/15.3937 setup 2706s
+[run] B=0.75 abc_v2       seed=0 calib=-2.9581 test=22.0929 cost=0.750 wall=484s
+[run] B=0.75 abc_v2       seed=1 calib=-2.9521 test=22.4767 cost=0.750 wall=460s
+[run] B=0.75 abc_v2       seed=2 calib=-2.9537 test=22.0322 cost=0.750 wall=455s
+[run] B=0.75 probe_mckp   seed=0 calib=-3.0496 test=23.7509 cost=0.744 wall=2s
+[run] B=0.75 fisher_mckp  seed=0 calib=-3.4821 test=35.3103 cost=0.744 wall=2s
+[run] B=0.75 ga           seed=0 calib=-3.3230 test=30.9882 cost=0.748 wall=1027s
+[run] B=0.75 ga           seed=1 calib=-3.3797 test=34.7459 cost=0.748 wall=1152s
+[run] B=0.75 ga           seed=2 calib=-3.3142 test=30.8355 cost=0.750 wall=1109s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<01:41,  1.42it/s]Loading weights:  58%|█████▊    | 84/146 [00:00<00:00, 134.92it/s]Loading weights:  84%|████████▍ | 123/146 [00:01<00:00, 144.08it/s]Loading weights: 100%|██████████| 146/146 [00:01<00:00, 122.92it/s]
+[stats] L=112 float calib=-2.4721 test=13.5481 u2: -12.1721/197605.1675 u3: -3.5783/38.7612 u4: -2.6090/15.3937 setup 10s
+[run] B=0.75 cmaes        seed=0 calib=-3.3699 test=32.1634 cost=0.750 wall=607s
+[run] B=0.75 cmaes        seed=1 calib=-3.4679 test=35.4693 cost=0.749 wall=631s
+[run] B=0.75 cmaes        seed=2 calib=-3.3657 test=32.9937 cost=0.749 wall=642s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<02:21,  1.03it/s]Loading weights:  58%|█████▊    | 84/146 [00:01<00:00, 106.42it/s]Loading weights:  90%|█████████ | 132/146 [00:01<00:00, 93.13it/s]Loading weights: 100%|██████████| 146/146 [00:01<00:00, 80.48it/s]
+[stats] L=112 float calib=-2.4721 test=13.5481 u2: -12.1721/197605.1675 u3: -3.5783/38.7612 u4: -2.6090/15.3937 setup 13s

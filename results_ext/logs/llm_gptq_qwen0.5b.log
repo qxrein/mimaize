@@ -1,0 +1,131 @@
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (2518423 > 131072). Running this sequence through the model will result in indexing errors
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<04:07,  1.17it/s]Loading weights:  55%|█████▍    | 159/290 [00:00<00:00, 215.31it/s]Loading weights:  78%|███████▊  | 227/290 [00:01<00:00, 157.30it/s]Loading weights:  93%|█████████▎| 269/290 [00:01<00:00, 156.58it/s]Loading weights: 100%|██████████| 290/290 [00:02<00:00, 142.24it/s]
+[gptq-cache] block 1/24
+[gptq-cache] block 2/24
+[gptq-cache] block 3/24
+[gptq-cache] block 4/24
+[gptq-cache] block 5/24
+[gptq-cache] block 6/24
+[gptq-cache] block 7/24
+[gptq-cache] block 8/24
+[gptq-cache] block 9/24
+[gptq-cache] block 10/24
+[gptq-cache] block 11/24
+[gptq-cache] block 12/24
+[gptq-cache] block 13/24
+[gptq-cache] block 14/24
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<01:15,  3.82it/s]Loading weights:  51%|█████     | 147/290 [00:00<00:00, 512.01it/s]Loading weights:  80%|███████▉  | 231/290 [00:00<00:00, 528.94it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 471.15it/s]
+[gptq-cache] block 15/24
+[gptq-cache] block 16/24
+[gptq-cache] block 17/24
+[gptq-cache] block 18/24
+[gptq-cache] block 19/24
+[gptq-cache] block 20/24
+[gptq-cache] block 21/24
+[gptq-cache] block 22/24
+[gptq-cache] block 23/24
+[gptq-cache] block 24/24
+Traceback (most recent call last):
+  File "/home/sneha/mimaize/ext_run.py", line 423, in <module>
+    main()
+  File "/home/sneha/mimaize/ext_run.py", line 355, in main
+    st[f"uniform{b}"] = {"calib": ev.score(c), "test": test_score(),
+                                  ^^^^^^^^^^^
+  File "/home/sneha/mimaize/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_engine.py", line 143, in score
+    self.set_config(cfg)
+  File "/home/sneha/mimaize/ext_engine.py", line 127, in set_config
+    self.mods[i].weight.data = self.qweight(i, b)
+                               ^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_run.py", line 248, in qweight
+    return torch.load(fn(i, int(b)), map_location="cpu", mmap=True).to(DEV, dtype=dt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/.venv/lib/python3.12/site-packages/torch/serialization.py", line 1588, in load
+    raise RuntimeError(
+RuntimeError: mmap can only be used with files saved with `torch.save(/home/sneha/mimaize/ext_data/gptq_cache/qwen0.5b/91_2.pt, _use_new_zipfile_serialization=True), please torch.save your checkpoint with this option in order to use mmap.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<01:09,  4.17it/s]Loading weights:  55%|█████▌    | 160/290 [00:00<00:00, 587.44it/s]Loading weights:  87%|████████▋ | 251/290 [00:00<00:00, 628.48it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 550.48it/s]
+Traceback (most recent call last):
+  File "/home/sneha/mimaize/ext_run.py", line 423, in <module>
+    main()
+  File "/home/sneha/mimaize/ext_run.py", line 355, in main
+    st[f"uniform{b}"] = {"calib": ev.score(c), "test": test_score(),
+                                  ^^^^^^^^^^^
+  File "/home/sneha/mimaize/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_engine.py", line 143, in score
+    self.set_config(cfg)
+  File "/home/sneha/mimaize/ext_engine.py", line 127, in set_config
+    self.mods[i].weight.data = self.qweight(i, b)
+                               ^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_run.py", line 248, in qweight
+    return torch.load(fn(i, int(b)), map_location="cpu", mmap=True).to(DEV, dtype=dt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/.venv/lib/python3.12/site-packages/torch/serialization.py", line 1588, in load
+    raise RuntimeError(
+RuntimeError: mmap can only be used with files saved with `torch.save(/home/sneha/mimaize/ext_data/gptq_cache/qwen0.5b/91_2.pt, _use_new_zipfile_serialization=True), please torch.save your checkpoint with this option in order to use mmap.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:48,  5.92it/s]Loading weights:  43%|████▎     | 124/290 [00:00<00:00, 553.26it/s]Loading weights:  67%|██████▋   | 193/290 [00:00<00:00, 589.89it/s]Loading weights:  90%|████████▉ | 260/290 [00:00<00:00, 593.40it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 548.04it/s]
+Traceback (most recent call last):
+  File "/home/sneha/mimaize/ext_run.py", line 423, in <module>
+    main()
+  File "/home/sneha/mimaize/ext_run.py", line 355, in main
+    st[f"uniform{b}"] = {"calib": ev.score(c), "test": test_score(),
+                                  ^^^^^^^^^^^
+  File "/home/sneha/mimaize/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_engine.py", line 143, in score
+    self.set_config(cfg)
+  File "/home/sneha/mimaize/ext_engine.py", line 127, in set_config
+    self.mods[i].weight.data = self.qweight(i, b)
+                               ^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_run.py", line 248, in qweight
+    return torch.load(fn(i, int(b)), map_location="cpu", mmap=True).to(DEV, dtype=dt)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/.venv/lib/python3.12/site-packages/torch/serialization.py", line 1588, in load
+    raise RuntimeError(
+RuntimeError: mmap can only be used with files saved with `torch.save(/home/sneha/mimaize/ext_data/gptq_cache/qwen0.5b/91_2.pt, _use_new_zipfile_serialization=True), please torch.save your checkpoint with this option in order to use mmap.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:34,  8.31it/s]Loading weights:  47%|████▋     | 136/290 [00:00<00:00, 720.18it/s]Loading weights:  76%|███████▌  | 219/290 [00:00<00:00, 698.47it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 687.72it/s]
+[gptq-cache] block 1/24
+[gptq-cache] block 2/24
+[gptq-cache] block 3/24
+[gptq-cache] block 4/24
+[gptq-cache] block 5/24
+[gptq-cache] block 6/24
+[gptq-cache] block 7/24
+[gptq-cache] block 8/24
+[gptq-cache] block 9/24
+[gptq-cache] block 10/24
+[gptq-cache] block 11/24
+[gptq-cache] block 12/24
+[gptq-cache] block 13/24
+[gptq-cache] block 14/24
+[gptq-cache] block 15/24
+[gptq-cache] block 16/24
+[gptq-cache] block 17/24
+[gptq-cache] block 18/24
+[gptq-cache] block 19/24
+[gptq-cache] block 20/24
+[gptq-cache] block 21/24
+[gptq-cache] block 22/24
+[gptq-cache] block 23/24
+[gptq-cache] block 24/24
+[stats] L=168 float calib=-2.9970 test=17.4578 u2: -14.5246/1854447.8518 u3: -3.5374/30.1909 u4: -3.1026/19.2299 setup 450s
+[run] B=0.75 abc_v2       seed=0 calib=-3.3791 test=26.3505 cost=0.750 wall=116s
+[run] B=0.75 abc_v2       seed=1 calib=-3.3944 test=26.5620 cost=0.750 wall=119s
+[run] B=0.75 abc_v2       seed=2 calib=-3.3903 test=26.8380 cost=0.750 wall=122s
+[run] B=0.75 probe_mckp   seed=0 calib=-3.5264 test=29.5934 cost=0.743 wall=1s
+[run] B=0.75 fisher_mckp  seed=0 calib=-3.9353 test=43.8409 cost=0.744 wall=1s
+[run] B=0.75 ga           seed=0 calib=-3.8081 test=39.7669 cost=0.747 wall=347s
+[run] B=0.75 ga           seed=1 calib=-4.0109 test=48.7997 cost=0.747 wall=345s
+[run] B=0.75 ga           seed=2 calib=-3.9139 test=45.5024 cost=0.750 wall=360s
+[run] B=0.75 cmaes        seed=0 calib=-3.9874 test=47.4589 cost=0.749 wall=399s
+[run] B=0.75 cmaes        seed=1 calib=-4.0992 test=52.9720 cost=0.749 wall=419s
+[run] B=0.75 cmaes        seed=2 calib=-3.8523 test=40.9901 cost=0.750 wall=433s

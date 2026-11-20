@@ -1,0 +1,47 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 10455.58it/s]
+[gptq-cache] block 1/24
+[gptq-cache] block 2/24
+[gptq-cache] block 3/24
+[gptq-cache] block 4/24
+[gptq-cache] block 5/24
+[gptq-cache] block 6/24
+[gptq-cache] block 7/24
+[gptq-cache] block 8/24
+[gptq-cache] block 9/24
+[gptq-cache] block 10/24
+[gptq-cache] block 11/24
+[gptq-cache] block 12/24
+[gptq-cache] block 13/24
+[gptq-cache] block 14/24
+[gptq-cache] block 15/24
+[gptq-cache] block 16/24
+[gptq-cache] block 17/24
+[gptq-cache] block 18/24
+[gptq-cache] block 19/24
+[gptq-cache] block 20/24
+[gptq-cache] block 21/24
+[gptq-cache] block 22/24
+[gptq-cache] block 23/24
+[gptq-cache] block 24/24
+[stats] L=144 float calib=-3.3821 test=34.2575 u2: -10.1832/34514.9746 u3: -4.3061/88.6801 u4: -3.4877/38.3111 setup 1160s
+[run] B=0.75 abc_v2       seed=0 calib=-3.6118 test=45.2101 cost=0.750 wall=188s
+[run] B=0.75 abc_v2       seed=1 calib=-3.5973 test=44.3476 cost=0.750 wall=197s
+[run] B=0.75 abc_v2       seed=2 calib=-3.5965 test=45.0791 cost=0.750 wall=188s
+[run] B=0.75 probe_mckp   seed=0 calib=-3.6918 test=48.1703 cost=0.736 wall=1s
+[run] B=0.75 fisher_mckp  seed=0 calib=-4.6216 test=111.1912 cost=0.735 wall=1s
+[run] B=0.75 ga           seed=0 calib=-4.0651 test=70.4933 cost=0.750 wall=492s
+[run] B=0.75 ga           seed=1 calib=-4.1432 test=79.7261 cost=0.747 wall=454s
+[run] B=0.75 ga           seed=2 calib=-4.1711 test=81.2666 cost=0.750 wall=413s
+[run] B=0.75 cmaes        seed=0 calib=-4.0344 test=65.6836 cost=0.749 wall=445s
+[run] B=0.75 cmaes        seed=1 calib=-3.9166 test=60.0883 cost=0.748 wall=418s
+[run] B=0.75 cmaes        seed=2 calib=-3.9398 test=59.5831 cost=0.740 wall=372s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 9341.06it/s]
+[stats] L=144 float calib=-3.3821 test=34.2575 u2: -10.1832/34514.9746 u3: -4.3061/88.6801 u4: -3.4877/38.3111 setup 6s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 11071.73it/s]
+[stats] L=144 float calib=-3.3821 test=34.2575 u2: -10.1832/34514.9746 u3: -4.3061/88.6801 u4: -3.4877/38.3111 setup 5s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 14216.61it/s]
+[stats] L=144 float calib=-3.3821 test=34.2575 u2: -10.1832/34514.9746 u3: -4.3061/88.6801 u4: -3.4877/38.3111 setup 6s
