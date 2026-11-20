@@ -130,8 +130,75 @@ def sweep_table(summary):
                     "\n\\bottomrule\n\\end{tabular}\n\\end{table}\n")
 
 
+def gptq_tables(summary):
+    cols = [(k, n) for k, n in LLMS if os.path.exists(os.path.join(RES, "gptq", f"{k}.json"))]
+    if not cols:
+        return
+    fin = {k: json.load(open(os.path.join(RES, "gptq", f"{k}.json"))) for k, _ in cols}
+    rows = [("FP16 (16 bits)", "fp16", False), ("Uniform 4-bit, RTN", "rtn4", False),
+            ("Uniform 4-bit, GPTQ", "gptq4", False), ("Uniform 3-bit, RTN", "rtn3", False),
+            ("Uniform 3-bit, GPTQ", "gptq3", False), ("Genetic algorithm + GPTQ", "ga", True),
+            ("CMA-ES + GPTQ", "cmaes", True), ("Fisher-MCKP (HAWQ-V2-style) + GPTQ", "fisher_mckp", True),
+            ("Probe-MCKP + GPTQ", "probe_mckp", True), ("\\textbf{ABC-Q + GPTQ (proposed)}", "abc_v2", True)]
+    with open(os.path.join(TAB, "ext_llm_gptq.tex"), "w") as f:
+        f.write("\\begin{table*}[t]\n\\centering\n\\caption{ABC-Q combined with GPTQ: WikiText-2 perplexity (lower is "
+                "better) with the standard protocol (whole test set, context 2048). Mixed-precision rows use an "
+                "average of $3.0$ bits per weight (achieved average in parentheses) with bit-widths searched by each "
+                "method on GPTQ-quantized layers; the configuration with the best \\emph{calibration} score among the "
+                "seeds is then quantized with sequential GPTQ (128 calibration sequences of 2048 WikiText-2 training "
+                "tokens, group size 128). Bold: best 3-bit result per model.}\n\\label{tab:ext_llm_gptq}\n\\footnotesize\n"
+                "\\resizebox{\\linewidth}{!}{\\begin{tabular}{l" + "c" * len(cols) + "}\n\\toprule\n")
+        f.write("Method & " + " & ".join(n for _, n in cols) + " \\\\\n\\midrule\n")
+        for lab, key, mixed in rows:
+            cells = []
+            for k, _ in cols:
+                d = fin[k]
+                if key not in d:
+                    cells.append("--")
+                    continue
+                v = d[key]["ppl_wikitext2_ctx2048_full"]
+                three = [d[x]["ppl_wikitext2_ctx2048_full"] for x in ("gptq3", "ga", "cmaes", "fisher_mckp",
+                                                                      "probe_mckp", "abc_v2") if x in d]
+                s = f"{v:.2f}"
+                if key in ("gptq3", "ga", "cmaes", "fisher_mckp", "probe_mckp", "abc_v2") and np.isclose(v, min(three)):
+                    s = f"\\textbf{{{s}}}"
+                if mixed:
+                    s += f" ({d[key]['avg_bits']:.2f})"
+                cells.append(s)
+            f.write(lab + " & " + " & ".join(cells) + " \\\\\n")
+            if key in ("fp16", "gptq4"):
+                f.write("\\midrule\n")
+        f.write("\\bottomrule\n\\end{tabular}}\n\\end{table*}\n")
+    for k, _ in cols:
+        d = fin[k]
+        summary.append(f"GPTQ {k}: " + "; ".join(f"{x}={d[x]['ppl_wikitext2_ctx2048_full']:.2f}" for x in d))
+    # search-phase seed statistics (GPTQ-quantized layers, search protocol)
+    with open(os.path.join(TAB, "ext_llm_gptq_search.tex"), "w") as f:
+        f.write("\\begin{table}[t]\n\\centering\n\\caption{GPTQ-aware search: WikiText-2 perplexity of the returned "
+                "configurations during search (layer-wise GPTQ weights, first 65{,}536 test tokens, context 512), "
+                "mean $\\pm$ std over 3 seeds; one-shot methods are deterministic.}\n\\label{tab:ext_llm_gptq_search}\n"
+                "\\footnotesize\n\\resizebox{\\linewidth}{!}{\\begin{tabular}{l" + "c" * len(cols) + "}\n\\toprule\n")
+        f.write("Method & " + " & ".join(n for _, n in cols) + " \\\\\n\\midrule\n")
+        sr = {}
+        for k, _ in cols:
+            st, runs = load("llm_gptq", k)
+            sr[k] = (st, runs)
+        lines = [("Uniform 3-bit, GPTQ", lambda st, runs: [st["uniform3"]["test"]])]
+        for m, lab in METHODS:
+            lines.append((lab.replace("ABC-Q (proposed)", "ABC-Q"),
+                          lambda st, runs, _m=m: [r["test"] for r in runs if r["method"] == _m]))
+        for lab, getter in lines:
+            cells = []
+            for k, _ in cols:
+                st, runs = sr[k]
+                cells.append(cell(getter(st, runs), "{:.1f}"))
+            f.write(lab + " & " + " & ".join(cells) + " \\\\\n")
+        f.write("\\bottomrule\n\\end{tabular}}\n\\end{table}\n")
+
+
 def main():
     summary = []
+    gptq_tables(summary)
     llm_table(summary)
     img_table(summary)
     sweep_table(summary)

@@ -57,9 +57,10 @@ surrogate carry the gains on CIFAR, whereas the colony dynamics add little there
 quantization-aware fine-tuning reduces the differences between allocations to about one percentage
 point. The findings carry over to ImageNet-pretrained CNNs, where every GA, CMA-ES and HAWQ-style
 allocation collapses while ABC-Q keeps a working network, and to weight-only quantization of four
-language models (OPT-125M/350M, Qwen2.5-0.5B, Llama-3.2-1B): at $3.0$ bits per parameter with round-to-nearest rounding, ABC-Q lowers
-WikiText-2 perplexity by $1.9$--$9.2\times$ relative to uniform 3-bit quantization of the same size and
-by $11$--$23\%$ relative to its own one-shot starting point. All per-run results are openly available.
+language models (OPT-125M/350M, Qwen2.5-0.5B, Llama-3.2-1B). Combined with GPTQ, ABC-Q gives the best
+3-bit models in every case, reducing WikiText-2 perplexity relative to uniform 3-bit GPTQ by $9$--$53\%$
+(Llama-3.2-1B: $18.84\to14.62$, FP16 $9.75$) and closing up to $85\%$ of the gap to uniform 4-bit GPTQ at
+$25\%$ less weight memory, while being far more repeatable across seeds than GA and CMA-ES. All per-run results are openly available.
 \end{abstract}
 
 \noindent\textbf{Keywords:} mixed-precision quantization; artificial bee colony; surrogate-assisted
@@ -124,7 +125,8 @@ observations.
       quantized.
 \item \textbf{Scaling evidence.} The same search code, unchanged, applied to ImageNet-pretrained
       MobileNetV2 and ResNet-18 and to weight-only quantization of four public language models up to
-      1.2B parameters (Section~\ref{sec:scaling}).
+      1.2B parameters, including a GPTQ-aware variant whose 3-bit models are the best of all methods
+      on every language model (Section~\ref{sec:scaling}).
 \end{enumerate}
 
 %% ===================================================================================
@@ -308,8 +310,8 @@ seed and run two epochs of QAT with STE \citep{Bengio2013STE}: float shadow weig
 every step, activations stay fake-quantized and BatchNorm statistics are frozen, so the evaluated
 network is genuinely quantized.
 
-\paragraph{Hardware and code.} The CIFAR experiments run in TensorFlow 2.16 and the ImageNet and LLM experiments (Section~\ref{sec:scaling}) in PyTorch 2.15, all on a single Apple M4 laptop
-(16\,GB). All raw per-run results are available on Zenodo \citep{AbcqResults}.
+\paragraph{Hardware and code.} The CIFAR experiments run in TensorFlow 2.16 and the ImageNet and LLM experiments (Section~\ref{sec:scaling}) in PyTorch 2.15 on a single Apple M4 laptop
+(16\,GB); the GPTQ experiments run in PyTorch 2.11 on a laptop RTX~3050 GPU (6\,GB). All raw per-run results are available on Zenodo \citep{AbcqResults}.
 
 \paragraph{Use of AI tools.} An AI assistant (Claude, Anthropic) was used during this work to help
 implement the experiment code, run and analyse the experiments, and draft parts of the manuscript text.
@@ -484,37 +486,75 @@ top-1), so we use $\beta=0.6$ for MobileNetV2 and $\beta=0.5$ (the cost of unifo
 ResNet-18. \emph{LLMs:} four public causal language models commonly used in quantization research,
 OPT-125M and OPT-350M \citep{Zhang2022OPT}, Qwen2.5-0.5B \citep{Qwen2024} and Llama-3.2-1B
 \citep{Grattafiori2024Llama3}. Every linear layer in the transformer blocks (72--168 layers) is quantized
-weight-only with group-wise round-to-nearest (group size 128), the standard baseline of
-\citet{Frantar2023GPTQ}, at $b_i\in\{2,3,4\}$; the cost is bits per parameter and the budget is an average
-of $3.0$ bits ($\beta=0.75$ relative to 4 bits). Bit counts refer to the quantized weights only: the
-fp16 scale and offset stored for every group of 128 weights add a further $0.25$ bits per parameter in
-a real deployment, identically for every method and for the uniform baselines. Quantization is simulated
+weight-only with group-wise scales (group size 128) at $b_i\in\{2,3,4\}$, either by round-to-nearest
+(RTN) or by GPTQ \citep{Frantar2023GPTQ}, which compensates each column's rounding error using the
+inverse Hessian of the layer inputs; the cost is bits per parameter and the budget is an average
+of $3.0$ bits ($\beta=0.75$ relative to 4 bits). Bit counts refer to the quantized weights; storing the
+fp16 scale and offset of every group of 128 weights adds $0.25$ bits, so the effective storage is $3.25$
+bits per weight for every 3-bit method and baseline, and $4.25$ for uniform 4-bit. Quantization is simulated
 (weights are rounded to the grid but kept in fp16), so no memory or speed measurements are reported. Fitness is the negative log-likelihood on
 $8\times512$ WikiText-2 \emph{training} tokens \citep{Merity2017WikiText}; we report perplexity on the
-first $65{,}536$ WikiText-2 test tokens. The evaluation budget is $E=2L+201$ (probes plus 200 search
+first $65{,}536$ WikiText-2 test tokens (context 512) during search. For \emph{GPTQ-aware search}, every
+layer is GPTQ-quantized once at every bit-width from Hessians of the full-precision model's layer inputs
+(128 sequences of 512 training tokens) and cached, so any allocation can be assembled and evaluated in one
+forward pass; the selected allocation is then quantized with standard sequential GPTQ (128 sequences of
+2048 training tokens) and evaluated with the standard protocol of \citet{Frantar2023GPTQ}: perplexity on the
+whole WikiText-2 test set with context 2048. The evaluation budget is $E=2L+201$ (probes plus 200 search
 evaluations); because each LLM evaluation is expensive we run GA, CMA-ES and ABC-Q with three seeds and
 omit random search and ABC-GP, which were clearly the weakest methods on CIFAR.
 
+\input{tables/ext_llm_gptq}
+
+\paragraph{LLMs: ABC-Q with GPTQ.} Table~\ref{tab:ext_llm_gptq} reports the end-to-end result: bit-widths
+chosen by each allocator, weights quantized by GPTQ. At the same average of $3.0$ bits per weight, ABC-Q
+gives the lowest perplexity on all four models. Relative to uniform 3-bit GPTQ it reduces perplexity by
+$53\%$ on OPT-125M ($88.70\to41.66$), $36\%$ on OPT-350M ($46.37\to29.73$), $9\%$ on Qwen2.5-0.5B
+($20.81\to18.87$) and $22\%$ on Llama-3.2-1B ($18.84\to14.62$), closing $85\%$, $74\%$, $29\%$ and $52\%$
+of the gap between uniform 3-bit and uniform 4-bit GPTQ while using $25\%$ less weight memory than the
+latter. The GA, CMA-ES and the HAWQ-style Fisher allocation are not reliable: on Qwen2.5-0.5B all three,
+on Llama-3.2-1B CMA-ES and Fisher-MCKP, and on OPT-350M the GA are \emph{worse} than simply quantizing every layer to 3 bits
+with GPTQ. ABC-Q also improves on its own one-shot knapsack starting point (Probe-MCKP) on every model
+($1.6$--$7.4\%$ lower perplexity). Table~\ref{tab:ext_llm_gptq_search} shows that ABC-Q is also by far the
+most repeatable search method: its seed-to-seed standard deviation is $0.2$--$0.5$ perplexity points,
+against $2.2$--$15.2$ for the GA and $1.6$--$6.0$ for CMA-ES.
+
+\input{tables/ext_llm_gptq_search}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/llm_gptq_bars.pdf}
+\caption{3-bit language models quantized with GPTQ under the bit allocation of each method (WikiText-2
+perplexity, whole test set, context 2048; lower is better). Solid line: FP16; dashed line: uniform 4-bit
+GPTQ, which uses $33\%$ more weight memory. ABC-Q (blue) gives the lowest perplexity on every model.}
+\label{fig:llm_bars}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/llm_bitmap_llama3.2-1b.pdf}
+\caption{Bit-width of each of the 112 linear layers of Llama-3.2-1B chosen by ABC-Q (GPTQ-aware search,
+average $3.00$ bits per weight). Percentages give each layer type's share of the quantized weights.}
+\label{fig:llm_bitmap}
+\end{figure*}
+
+Figure~\ref{fig:llm_bars} summarises the comparison, and Figure~\ref{fig:llm_bitmap} shows what the search
+learned on Llama-3.2-1B. ABC-Q spends precision where it is cheap and valuable: the key and value
+projections, which hold only $2\%$ of the weights each, are kept at 4 bits in almost every block (mean
+$3.75$ and $4.00$ bits), whereas the large MLP projections, which hold $84\%$ of the weights, stay mostly
+at 3 bits and the budget is balanced by 2-bit query and gate projections in a few blocks. The down
+projections of the second and last blocks are raised to 4 bits. Of the 112 layers, 11 are quantized to
+2 bits, 63 to 3 bits and 38 to 4 bits, a layout that uniform precision cannot express.
+
 \input{tables/ext_llm}
 
-\paragraph{LLMs.} Table~\ref{tab:ext_llm} shows the clearest results of the study. At $3.0$ bits per
-parameter ABC-Q reduces WikiText-2 perplexity relative to uniform 3-bit quantization of the same size
-by $2.8\times$ on OPT-125M ($284.2\to103.2$), $3.7\times$ on OPT-350M ($232.2\to63.2$) and $1.9\times$ on
-Qwen2.5-0.5B ($90.3\to47.6$) and $9.2\times$ on Llama-3.2-1B ($315.1\to34.3$), with a seed-to-seed spread of only a few perplexity points.
-The GA and CMA-ES improve on uniform 3-bit for the OPT and Llama models but are \emph{worse} than it on
-Qwen2.5-0.5B, and remain $1.8$--$3.1\times$ worse than ABC-Q everywhere; and the Fisher-weighted HAWQ-style allocation is inconsistent (close to Probe-MCKP on
-OPT-125M, but worse than uniform 3-bit on OPT-350M and Qwen2.5-0.5B). In contrast to CIFAR, the search
-itself matters here: ABC-Q improves its own probe-based starting point (Probe-MCKP) by $11$--$23\%$ in
-perplexity on every model, so the population search contributes substantially once the number of
-layers and their interactions grow.
-
-These numbers measure the quality of the \emph{allocation}, not deployment-ready models. With
-round-to-nearest, even the best 3.0-bit configurations remain far from full precision: Llama-3.2-1B
-reaches a perplexity of $34.3$ against $13.5$ in FP16 and $16.9$ for uniform 4-bit (which uses
-$33\%$ more memory), and OPT-125M reaches $103.2$ against $42.2$ in FP16. Error-compensating rounding
-such as GPTQ \citep{Frantar2023GPTQ} is known to close much of this gap at 3--4 bits and is
-complementary to ABC-Q: it can quantize each layer at the bit-width that ABC-Q selects. We did not run
-this combination, so we make no claim about the absolute quality attainable at 3 bits.
+\paragraph{LLMs: controlled allocation study with round-to-nearest.} Table~\ref{tab:ext_llm} isolates the
+effect of the allocation by using the simplest quantizer for every layer. The ranking is the same and the
+differences are larger: at $3.0$ bits per parameter ABC-Q reduces perplexity relative to uniform 3-bit RTN by
+$2.8\times$ on OPT-125M, $3.7\times$ on OPT-350M, $1.9\times$ on Qwen2.5-0.5B and $9.2\times$ on
+Llama-3.2-1B, and improves on Probe-MCKP by $11$--$23\%$. Comparing the two tables shows that allocation and
+rounding are complementary: GPTQ alone (uniform 3-bit) and ABC-Q alone (RTN) each help substantially, and
+their combination gives the best 3-bit models, e.g.\ $14.62$ on Llama-3.2-1B against $225.88$ for uniform
+3-bit RTN and $9.75$ in FP16.
 
 \input{tables/ext_imagenet}
 
@@ -538,15 +578,6 @@ $\beta=0.7$, whereas measured probes keep the network functional from $\beta=0.6
       ImageNet and LLM experiments (Section~\ref{sec:scaling}) use three seeds, one budget each, models up
       to 1.2B parameters, ImageNetV2 instead of the original validation set, and a reduced WikiText-2 test
       subset; larger models and full benchmarks remain to be tested.
-\item \textbf{Rounding and absolute quality.} We use round-to-nearest throughout, to isolate the effect
-      of bit allocation. The resulting 3.0-bit language models are not deployment-quality (e.g.\
-      Llama-3.2-1B: perplexity $34.3$ vs.\ $13.5$ in FP16). Reconstruction-based rounding (AdaRound,
-      BRECQ, GPTQ) would raise the quality of every configuration; whether it changes the ranking of
-      allocation methods is open.
-\item \textbf{LLM evaluation scope.} Language models are evaluated by WikiText-2 perplexity only
-      (first 65{,}536 test tokens, context 512), without zero-shot downstream tasks, longer contexts or
-      other corpora. The reported bit budgets exclude the per-group scale and offset overhead
-      ($\approx0.25$ bits per parameter).
 \item \textbf{No hardware measurements.} All quantization is simulated; we report neither memory
       footprints of packed models nor latency. Mixed 2/3/4-bit kernels exist only for some accelerators.
 \item \textbf{Simulated quantization and BOPs.} We use fake quantization without BatchNorm folding and
@@ -577,19 +608,17 @@ Fisher-weighted HAWQ-style score are only moderately correlated with measured da
 
 The same conclusions hold at larger scale. On ImageNet-pretrained CNNs, generic search and HAWQ-style
 allocation collapse under a tight budget while ABC-Q keeps a working network (although on ResNet-18 it
-only matches uniform W4A8). On four language models from 125M to 1.2B parameters, ABC-Q reduces
-perplexity at 3.0 bits per parameter by $1.9$--$9.2\times$ relative to uniform 3-bit quantization, and
-there, unlike on CIFAR, the population search adds a clear $11$--$23\%$ improvement over its one-shot
-knapsack starting point. Bit allocation for language models is thus the most promising application of
-the method, although with round-to-nearest the resulting 3-bit models remain well above full-precision
-perplexity; combining the searched allocation with error-compensating rounding such as GPTQ is the
-necessary next step towards deployable models.
+only matches uniform W4A8). On four language models from 125M to 1.2B parameters, ABC-Q combined with
+GPTQ produces the best 3-bit models in every case ($9$--$53\%$ lower perplexity than uniform 3-bit GPTQ),
+and there, unlike on CIFAR, the population search adds a consistent improvement over its one-shot knapsack
+starting point. Searching the allocation on the same quantizer that is deployed (GPTQ-aware search) is
+what makes the method a practical post-training tool for language models.
 
 Future work should (i) measure latency and energy on hardware with sub-8-bit kernels,
 (ii) put short fine-tuning inside the search loop, (iii) study larger evaluation budgets where
 population diversity may matter, and (iv) combine the searched allocation with reconstruction-based
-PTQ such as AdaRound, BRECQ or GPTQ \citep{Nagel2020AdaRound,Li2021BRECQ,Frantar2023GPTQ}, and scale the
-LLM study to larger models.
+PTQ such as AdaRound or BRECQ for CNNs \citep{Nagel2020AdaRound,Li2021BRECQ}, add zero-shot downstream
+evaluation, and scale the LLM study to larger models.
 
 \appendix
 \section{Per-configuration results}

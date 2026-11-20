@@ -43,6 +43,7 @@ ap.add_argument("--damp", type=float, default=0.01)
 ap.add_argument("--alloc_src", default="llm_gptq", choices=["llm", "llm_gptq"],
                 help="where searched allocations come from: RTN search (llm) or GPTQ-aware search (llm_gptq)")
 ap.add_argument("--tag", default="")
+ap.add_argument("--extra", action="store_true", help="also C4 perplexity + 6 zero-shot tasks (-> <model>_extra.json)")
 args, _unknown = ap.parse_known_args()  # tolerate foreign args when imported by ext_run.py
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -177,7 +178,13 @@ def main():
     rng = np.random.RandomState(1)
     starts = rng.randint(0, len(tr) - args.seqlen - 1, size=args.nsamples)
     calib = torch.stack([tr[s:s + args.seqlen] for s in starts])
-    out_p = os.path.join(OUT, f"{args.model}{args.tag}.json")
+    out_p = os.path.join(OUT, f"{args.model}{args.tag}{'_extra' if args.extra else ''}.json")
+    tasks = c4 = None
+    if args.extra:
+        from ext_llm_eval import c4_tokens, load_tasks
+        tasks = load_tasks()
+        c4 = c4_tokens(tok, DATA)
+        print("[extra] tasks:", {k: len(v[0]) for k, v in tasks.items()}, "c4 tokens:", len(c4), flush=True)
     res = json.load(open(out_p)) if os.path.exists(out_p) else {}
     print(f"[gptq] model={args.model} device={DEV} linalg={LINALG_DEV}", flush=True)
 
@@ -240,7 +247,13 @@ def main():
         avg_bits = float(np.sum(bits * npar) / npar.sum()) if bits is not None else 16.0
         ppl_std = perplexity(model, te, args.eval_ctx)
         ppl_search = perplexity(model, te, 512, max_tokens=128 * 512)
-        res[name] = {"avg_bits": avg_bits, "rounding": "gptq" if use_gptq else ("none" if bits is None else "rtn"),
+        extra = {}
+        if args.extra:
+            from ext_llm_eval import eval_zero_shot, perplexity as ppl_fn
+            extra["ppl_c4_ctx2048"] = ppl_fn(model, c4, DEV)
+            extra["zero_shot"] = eval_zero_shot(model, tok, DEV, tasks)
+            print(f"[extra] {name} c4={extra['ppl_c4_ctx2048']:.2f} zs={extra['zero_shot']}", flush=True)
+        res[name] = {**extra, "avg_bits": avg_bits, "rounding": "gptq" if use_gptq else ("none" if bits is None else "rtn"),
                      "ppl_wikitext2_ctx2048_full": ppl_std, "ppl_wikitext2_ctx512_65k": ppl_search,
                      "wall_s": time.time() - t0, "nsamples": args.nsamples, "seqlen": args.seqlen}
         print(f"[gptq] {name:12s} bits={avg_bits:.2f} ppl(2048,full)={ppl_std:.2f} "
