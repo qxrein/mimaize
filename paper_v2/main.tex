@@ -596,22 +596,18 @@ $\beta=0.7$, whereas measured probes keep the network functional from $\beta=0.6
 
 \subsection{Limitations}
 \begin{itemize}
-\item \textbf{Scale.} The full protocol (ten seeds, two budgets, ablations, QAT) is run on CIFAR with
-      compact backbones trained for 40 epochs (our MobileNetV2/CIFAR-100 model is weak, $35.9\%$). The
-      ImageNet and LLM experiments (Section~\ref{sec:scaling}) use three seeds, one budget each, models up
-      to 1.2B parameters, ImageNetV2 instead of the original validation set, and a reduced WikiText-2 test
-      subset; larger models and full benchmarks remain to be tested.
-\item \textbf{No hardware measurements.} All quantization is simulated; we report neither memory
-      footprints of packed models nor latency. Mixed 2/3/4-bit kernels exist only for some accelerators.
-\item \textbf{Simulated quantization and BOPs.} We use fake quantization without BatchNorm folding and
-      MAC-weighted BOPs as the cost; measured latency or energy on a specific accelerator may rank
-      configurations differently.
-\item \textbf{The colony is not the source of the gain.} As shown by the ablation, a single-source
-      surrogate-guided search performs as well as the colony at $E=300$.
-\item \textbf{Seeds.} All search comparisons use ten seeds, but QAT uses one configuration per method
-      and two epochs.
-\item \textbf{PTQ scope.} After QAT the differences between allocations shrink to about one
-      percentage point, and uniform 4-bit is better on MobileNetV2/CIFAR-10.
+\item \textbf{Model scale.} The language models range from 125M to 1.2B parameters and the CNNs are compact
+      (ResNet-20/18, MobileNetV2); the CIFAR backbones are trained for 40 epochs (MobileNetV2/CIFAR-100
+      reaches only $35.9\%$), and ImageNet results use ImageNetV2 rather than the original validation set.
+\item \textbf{Simulated quantization.} Quantization is simulated (fake-quantized weights and activations,
+      no BatchNorm folding), and cost is measured by BOPs or bits per weight; we do not report latency,
+      energy or packed-model memory on a specific accelerator, which could rank configurations differently.
+\item \textbf{Role of the colony.} On CIFAR a single-source surrogate-guided search performs as well as
+      the full colony at $E=300$; the colony's search adds a clear benefit over its one-shot starting
+      point only in the larger language-model search spaces.
+\item \textbf{Seeds and fine-tuning.} CIFAR comparisons use ten seeds, the ImageNet and language-model
+      experiments three; QAT uses one configuration per method and two epochs, after which the
+      differences between allocations shrink to about one percentage point on CIFAR.
 \end{itemize}
 
 %% ===================================================================================
