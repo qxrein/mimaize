@@ -62,15 +62,6 @@
     "nsamples": 128,
     "seqlen": 2048
   },
-  "ga": {
-    "avg_bits": 3.0,
-    "rounding": "gptq",
-    "ppl_wikitext2_ctx2048_full": 51.293370550050696,
-    "ppl_wikitext2_ctx512_65k": 75.95739500173839,
-    "wall_s": 336.1061038970947,
-    "nsamples": 128,
-    "seqlen": 2048
-  },
   "cmaes": {
     "avg_bits": 2.9930555555555554,
     "rounding": "gptq",
@@ -86,6 +77,15 @@
     "ppl_wikitext2_ctx2048_full": 29.727626063486966,
     "ppl_wikitext2_ctx512_65k": 45.70106993452634,
     "wall_s": 516.0929107666016,
+    "nsamples": 128,
+    "seqlen": 2048
+  },
+  "ga": {
+    "avg_bits": 3.0,
+    "rounding": "gptq",
+    "ppl_wikitext2_ctx2048_full": 98.48252400003061,
+    "ppl_wikitext2_ctx512_65k": 110.59071286146956,
+    "wall_s": 455.94959926605225,
     "nsamples": 128,
     "seqlen": 2048
   }

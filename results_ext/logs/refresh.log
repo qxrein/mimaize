@@ -1,0 +1,20 @@
+[refresh] opt125m ga: selected seed changed -> seed 4; final results invalidated
+[refresh] opt125m cmaes: unchanged (seed 0 of 5)
+[refresh] opt125m abc_v2: selected seed changed -> seed 4; final results invalidated
+[refresh] opt125m probe_mckp: unchanged (seed 0 of 1)
+[refresh] opt125m fisher_mckp: unchanged (seed 0 of 1)
+[refresh] opt350m ga: selected seed changed -> seed 3; final results invalidated
+[refresh] opt350m cmaes: unchanged (seed 1 of 5)
+[refresh] opt350m abc_v2: unchanged (seed 2 of 5)
+[refresh] opt350m probe_mckp: unchanged (seed 0 of 1)
+[refresh] opt350m fisher_mckp: unchanged (seed 0 of 1)
+[refresh] qwen0.5b ga: selected seed changed -> seed 4; final results invalidated
+[refresh] qwen0.5b cmaes: unchanged (seed 2 of 5)
+[refresh] qwen0.5b abc_v2: unchanged (seed 0 of 5)
+[refresh] qwen0.5b probe_mckp: unchanged (seed 0 of 1)
+[refresh] qwen0.5b fisher_mckp: unchanged (seed 0 of 1)
+[refresh] llama3.2-1b ga: unchanged (seed 2 of 5)
+[refresh] llama3.2-1b cmaes: unchanged (seed 2 of 5)
+[refresh] llama3.2-1b abc_v2: unchanged (seed 1 of 5)
+[refresh] llama3.2-1b probe_mckp: unchanged (seed 0 of 1)
+[refresh] llama3.2-1b fisher_mckp: unchanged (seed 0 of 1)
