@@ -16,3 +16,6 @@
 Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   3%|▎         | 9/290 [00:00<00:03, 89.92it/s]Loading weights:  59%|█████▉    | 172/290 [00:00<00:00, 930.17it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 935.92it/s]
 [extra] abc_v2 c4=32.62 zs={'arc_easy': 0.5096801346801347, 'arc_challenge': 0.2909556313993174, 'hellaswag': 0.43507269468233417, 'piqa': 0.6430903155603918, 'boolq': 0.5877675840978593, 'winogrande': 0.5185477505919495, 'average': 0.4975190185019978}
 [gptq] abc_v2       bits=3.00 ppl(2048,full)=18.87 ppl(512,65k)=25.98 2124s
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (528225 > 131072). Running this sequence through the model will result in indexing errors
+[extra] tasks: {'arc_easy': 2376, 'arc_challenge': 1172, 'hellaswag': 10042, 'piqa': 1838, 'boolq': 3270, 'winogrande': 1267} c4 tokens: 524288
+[gptq] model=qwen0.5b device=cuda linalg=cuda

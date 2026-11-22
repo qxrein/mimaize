@@ -22,3 +22,8 @@
 [gptq] model=opt350m device=cuda linalg=cuda
 [gptq] model=opt350m device=cuda linalg=cuda
 [gptq] model=opt350m device=cuda linalg=cuda
+[gptq] model=opt350m device=cuda linalg=cuda
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 9856.40it/s]
+[gptq] ga           bits=3.00 ppl(2048,full)=98.48 ppl(512,65k)=110.59 456s
+[gptq] model=opt350m device=cuda linalg=cuda
+[gptq] model=opt350m device=cuda linalg=cuda

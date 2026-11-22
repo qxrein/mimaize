@@ -129,3 +129,18 @@ RuntimeError: mmap can only be used with files saved with `torch.save(/home/sneh
 [run] B=0.75 cmaes        seed=0 calib=-3.9874 test=47.4589 cost=0.749 wall=399s
 [run] B=0.75 cmaes        seed=1 calib=-4.0992 test=52.9720 cost=0.749 wall=419s
 [run] B=0.75 cmaes        seed=2 calib=-3.8523 test=40.9901 cost=0.750 wall=433s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<00:53,  5.44it/s]Loading weights:  37%|███▋      | 108/290 [00:00<00:00, 467.27it/s]Loading weights:  59%|█████▉    | 171/290 [00:00<00:00, 429.35it/s]Loading weights:  77%|███████▋  | 223/290 [00:00<00:00, 443.76it/s]Loading weights:  94%|█████████▍| 273/290 [00:00<00:00, 445.44it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 415.10it/s]
+[stats] L=168 float calib=-2.9970 test=17.4578 u2: -14.5246/1854447.8518 u3: -3.5374/30.1909 u4: -3.1026/19.2299 setup 8s
+[run] B=0.75 ga           seed=3 calib=-3.9355 test=45.6761 cost=0.749 wall=386s
+[run] B=0.75 ga           seed=4 calib=-3.7750 test=38.5367 cost=0.750 wall=398s
+[run] B=0.75 cmaes        seed=3 calib=-3.9835 test=46.2038 cost=0.749 wall=420s
+[run] B=0.75 cmaes        seed=4 calib=-3.8994 test=43.8785 cost=0.747 wall=422s
+[run] B=0.75 abc_v2       seed=3 calib=-3.4119 test=26.8920 cost=0.750 wall=150s
+[run] B=0.75 abc_v2       seed=4 calib=-3.3811 test=26.1213 cost=0.750 wall=149s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<01:14,  3.90it/s]Loading weights:  35%|███▍      | 101/290 [00:00<00:00, 279.88it/s]Loading weights:  55%|█████▍    | 159/290 [00:00<00:00, 356.57it/s]Loading weights:  74%|███████▍  | 216/290 [00:00<00:00, 416.42it/s]Loading weights:  96%|█████████▌| 279/290 [00:00<00:00, 412.20it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 361.00it/s]
+[stats] L=168 float calib=-2.9970 test=17.4578 u2: -14.5246/1854447.8518 u3: -3.5374/30.1909 u4: -3.1026/19.2299 setup 7s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:   0%|          | 1/290 [00:00<01:20,  3.59it/s]Loading weights:  46%|████▌     | 132/290 [00:00<00:00, 444.17it/s]Loading weights:  72%|███████▏  | 209/290 [00:00<00:00, 483.56it/s]Loading weights:  95%|█████████▌| 276/290 [00:00<00:00, 509.01it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 438.05it/s]
+[stats] L=168 float calib=-2.9970 test=17.4578 u2: -14.5246/1854447.8518 u3: -3.5374/30.1909 u4: -3.1026/19.2299 setup 7s

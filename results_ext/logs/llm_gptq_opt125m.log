@@ -55,3 +55,18 @@ Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 8613.88it/s]
 [stats] L=72 float calib=-3.5862 test=42.2168 u2: -8.7840/7288.5050 u3: -4.8353/146.9347 u4: -3.7496/49.7484 setup 7s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 10193.91it/s]
+[stats] L=72 float calib=-3.5862 test=42.2168 u2: -8.7840/7288.5050 u3: -4.8353/146.9347 u4: -3.7496/49.7484 setup 6s
+[run] B=0.75 ga           seed=3 calib=-4.3057 test=84.5832 cost=0.745 wall=44s
+[run] B=0.75 ga           seed=4 calib=-4.1657 test=75.6141 cost=0.750 wall=44s
+[run] B=0.75 cmaes        seed=3 calib=-4.1852 test=78.5049 cost=0.748 wall=52s
+[run] B=0.75 cmaes        seed=4 calib=-4.2168 test=80.6095 cost=0.748 wall=54s
+[run] B=0.75 abc_v2       seed=3 calib=-3.9310 test=60.9989 cost=0.750 wall=28s
+[run] B=0.75 abc_v2       seed=4 calib=-3.9281 test=60.6369 cost=0.750 wall=28s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 10126.33it/s]
+[stats] L=72 float calib=-3.5862 test=42.2168 u2: -8.7840/7288.5050 u3: -4.8353/146.9347 u4: -3.7496/49.7484 setup 7s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 14685.47it/s]
+[stats] L=72 float calib=-3.5862 test=42.2168 u2: -8.7840/7288.5050 u3: -4.8353/146.9347 u4: -3.7496/49.7484 setup 7s

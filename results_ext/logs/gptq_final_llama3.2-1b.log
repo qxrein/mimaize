@@ -20,3 +20,6 @@
 Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:   1%|          | 1/146 [00:00<00:43,  3.32it/s]Loading weights:  64%|██████▎   | 93/146 [00:00<00:00, 283.68it/s]Loading weights:  96%|█████████▌| 140/146 [00:00<00:00, 307.73it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 263.93it/s]
 [gptq] abc_v2       bits=3.00 ppl(2048,full)=14.62 ppl(512,65k)=21.66 836s
 [gptq] model=llama3.2-1b device=cuda linalg=cuda
+[gptq] model=llama3.2-1b device=cuda linalg=cuda
+[gptq] model=llama3.2-1b device=cuda linalg=cuda
+[gptq] model=llama3.2-1b device=cuda linalg=cuda

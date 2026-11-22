@@ -6,3 +6,10 @@
 [gptq] model=opt125m device=cuda linalg=cuda
 [gptq] model=opt125m device=cuda linalg=cuda
 [gptq] model=opt125m device=cuda linalg=cuda
+[gptq] model=opt125m device=cuda linalg=cuda
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 11649.53it/s]
+[gptq] ga           bits=3.00 ppl(2048,full)=55.18 ppl(512,65k)=83.29 106s
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 9303.88it/s]
+[gptq] abc_v2       bits=3.00 ppl(2048,full)=40.54 ppl(512,65k)=62.78 106s
+[gptq] model=opt125m device=cuda linalg=cuda
+[gptq] model=opt125m device=cuda linalg=cuda

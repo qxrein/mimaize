@@ -29,3 +29,8 @@
 Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 11156.72it/s]
 [extra] abc_v2 c4=39.77 zs={'arc_easy': 0.37457912457912457, 'arc_challenge': 0.21843003412969283, 'hellaswag': 0.3040231029675364, 'piqa': 0.6077257889009793, 'boolq': 0.43363914373088686, 'winogrande': 0.5043409629044988, 'average': 0.40712302620211976}
 [gptq] abc_v2       bits=3.00 ppl(2048,full)=41.06 ppl(512,65k)=63.94 496s
+[extra] tasks: {'arc_easy': 2376, 'arc_challenge': 1172, 'hellaswag': 10042, 'piqa': 1838, 'boolq': 3270, 'winogrande': 1267} c4 tokens: 524288
+[gptq] model=opt125m device=cuda linalg=cuda
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]Loading weights: 100%|██████████| 197/197 [00:00<00:00, 13878.39it/s]
+[extra] abc_v2 c4=39.48 zs={'arc_easy': 0.369949494949495, 'arc_challenge': 0.22440273037542663, 'hellaswag': 0.3015335590519817, 'piqa': 0.5963003264417845, 'boolq': 0.4990825688073395, 'winogrande': 0.5067087608524072, 'average': 0.4163295734130725}
+[gptq] abc_v2       bits=3.00 ppl(2048,full)=40.54 ppl(512,65k)=62.78 487s

@@ -45,3 +45,18 @@
 [transformers] `torch_dtype` is deprecated! Use `dtype` instead!
 Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 14216.61it/s]
 [stats] L=144 float calib=-3.3821 test=34.2575 u2: -10.1832/34514.9746 u3: -4.3061/88.6801 u4: -3.4877/38.3111 setup 6s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 8972.07it/s]
+[stats] L=144 float calib=-3.3821 test=34.2575 u2: -10.1832/34514.9746 u3: -4.3061/88.6801 u4: -3.4877/38.3111 setup 7s
+[run] B=0.75 ga           seed=3 calib=-3.9488 test=60.4653 cost=0.750 wall=174s
+[run] B=0.75 ga           seed=4 calib=-4.0816 test=71.5369 cost=0.749 wall=180s
+[run] B=0.75 cmaes        seed=3 calib=-3.9888 test=62.4564 cost=0.747 wall=200s
+[run] B=0.75 cmaes        seed=4 calib=-3.9917 test=65.7607 cost=0.750 wall=201s
+[run] B=0.75 abc_v2       seed=3 calib=-3.6321 test=45.8231 cost=0.750 wall=78s
+[run] B=0.75 abc_v2       seed=4 calib=-3.6026 test=44.9183 cost=0.750 wall=78s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 14563.69it/s]
+[stats] L=144 float calib=-3.3821 test=34.2575 u2: -10.1832/34514.9746 u3: -4.3061/88.6801 u4: -3.4877/38.3111 setup 6s
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/388 [00:00<?, ?it/s]Loading weights: 100%|██████████| 388/388 [00:00<00:00, 12254.07it/s]
+[stats] L=144 float calib=-3.3821 test=34.2575 u2: -10.1832/34514.9746 u3: -4.3061/88.6801 u4: -3.4877/38.3111 setup 6s

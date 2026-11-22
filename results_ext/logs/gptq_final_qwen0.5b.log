@@ -55,3 +55,8 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/sneha/mimaize/res
 [gptq] cmaes        bits=3.00 ppl(2048,full)=26.94 ppl(512,65k)=37.87 813s
 Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  34%|███▍      | 99/290 [00:00<00:00, 856.17it/s]Loading weights:  91%|█████████▏| 265/290 [00:00<00:00, 1276.38it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 1201.67it/s]
 [gptq] abc_v2       bits=3.00 ppl(2048,full)=18.87 ppl(512,65k)=25.98 831s
+[gptq] model=qwen0.5b device=cuda linalg=cuda
+Loading weights:   0%|          | 0/290 [00:00<?, ?it/s]Loading weights:  22%|██▏       | 64/290 [00:00<00:00, 601.50it/s]Loading weights:  43%|████▎     | 125/290 [00:00<00:00, 603.23it/s]Loading weights:  64%|██████▍   | 186/290 [00:00<00:00, 605.05it/s]Loading weights:  85%|████████▌ | 247/290 [00:00<00:00, 584.90it/s]Loading weights: 100%|██████████| 290/290 [00:00<00:00, 604.78it/s]
+[gptq] ga           bits=3.00 ppl(2048,full)=24.57 ppl(512,65k)=35.47 628s
+[gptq] model=qwen0.5b device=cuda linalg=cuda
+[gptq] model=qwen0.5b device=cuda linalg=cuda
