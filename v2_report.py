@@ -490,9 +490,78 @@ def qat_table(summary: List[str]) -> None:
         f.write("\\bottomrule\n\\end{tabular}\n\\end{table*}\n")
 
 
+def qat_multi_table(summary: List[str]) -> None:
+    """QAT with three configurations per method (search seeds 0-2; uniform: three fine-tuning seeds)."""
+    order = ["uniform4", "fisher_mckp", "ga", "cmaes", "abc_v2"]
+    names = {"uniform4": "Uniform W4A4", "fisher_mckp": "Fisher-MCKP", "ga": "GA", "cmaes": "CMA-ES",
+             "abc_v2": "\\textbf{ABC-Q}"}
+    cfgs = []
+    for bb, ds in CONFIGS:
+        p = os.path.join(RES, bb, ds, "qat_B250_multi.json")
+        if os.path.exists(p):
+            cfgs.append((bb, ds, json.load(open(p))))
+    if not cfgs:
+        return
+
+    def vals(d, m, field):
+        return [v[field] for v in d.values() if v.get("method") == m]
+
+    pooled = {}
+    for m in order:
+        if m == "abc_v2":
+            continue
+        a, b = [], []
+        for _, _, d in cfgs:
+            va = {v["qat_seed"]: v["qat_test"] for v in d.values() if v.get("method") == "abc_v2"}
+            vb = {v["qat_seed"]: v["qat_test"] for v in d.values() if v.get("method") == m}
+            for sd in sorted(set(va) & set(vb)):
+                a.append(va[sd])
+                b.append(vb[sd])
+        if len(a) >= 3:
+            pooled[m] = (len(a), sum(x > y for x, y in zip(a, b)), wilcoxon(np.array(a), np.array(b)))
+    adj = holm({m: v[2] for m, v in pooled.items()})
+    with open(os.path.join(TAB, "qat_multi.tex"), "w") as f:
+        f.write("\\begin{table*}[t]\n\\centering\n\\caption{Quantization-aware fine-tuning of the configurations found at "
+                "$B=0.25$: test accuracy (\\%) before (PTQ) and after three epochs of QAT (STE, network kept quantized), "
+                "mean $\\pm$ std over three configurations per method (search seeds 0--2, chosen without test data; "
+                "uniform W4A4: three fine-tuning seeds). Last column: ABC-Q better than the method in $k$ of the "
+                "paired runs pooled over the four tasks, with Holm-corrected two-sided Wilcoxon $p$.}\n"
+                "\\label{tab:qat_multi}\n\\footnotesize\\setlength{\\tabcolsep}{3pt}\n"
+                "\\resizebox{\\linewidth}{!}{\\begin{tabular}{l" + "cc" * len(cfgs) + "c}\n\\toprule\n")
+        f.write(" & " + " & ".join(f"\\multicolumn{{2}}{{c}}{{{PRETTY_BB[bb]} / {PRETTY_DS[ds]}}}" for bb, ds, _ in cfgs)
+                + " & \\\\\n")
+        f.write("Configuration & " + " & ".join("PTQ & QAT" for _ in cfgs) + " & ABC-Q better \\\\\n\\midrule\n")
+        for m in order:
+            cells = []
+            for _, _, d in cfgs:
+                pt, qt = vals(d, m, "ptq_test"), vals(d, m, "qat_test")
+                if not qt:
+                    cells += ["--", "--"]
+                    continue
+                best = max(np.mean(vals(d, x, "qat_test")) for x in order if vals(d, x, "qat_test"))
+                q_s = f"{100 * np.mean(qt):.2f} $\\pm$ {100 * np.std(qt, ddof=1):.2f}"
+                if np.isclose(np.mean(qt), best):
+                    q_s = f"\\textbf{{{q_s}}}"
+                cells += [f"{100 * np.mean(pt):.2f}", q_s]
+            if m in pooled:
+                n, k, _ = pooled[m]
+                p = adj[m]
+                tail = f"{k}/{n} ($p={p:.3f}$)" if p >= 0.001 else f"{k}/{n} ($p<0.001$)"
+            else:
+                tail = "--"
+            f.write(names[m] + " & " + " & ".join(cells) + f" & {tail} \\\\\n")
+        f.write("\\bottomrule\n\\end{tabular}}\n\\end{table*}\n")
+    for m in order:
+        summary.append(f"  qat_multi {m}: " + "; ".join(
+            f"{bb}/{ds} {100 * np.mean(vals(d, m, 'qat_test')):.2f}±{100 * np.std(vals(d, m, 'qat_test'), ddof=1):.2f}"
+            for bb, ds, d in cfgs if len(vals(d, m, 'qat_test')) > 1)
+            + (f" | pooled vs ABC-Q: ABC-Q better {pooled[m][1]}/{pooled[m][0]}, p_holm={adj[m]:.4f}" if m in pooled else ""))
+
+
 def main() -> None:
     summary: List[str] = []
     qat_table(summary)
+    qat_multi_table(summary)
     models_table()
     main_tables(summary)
     ablation_table(summary)

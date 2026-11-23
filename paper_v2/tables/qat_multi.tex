@@ -1,0 +1,18 @@
+\begin{table*}[t]
+\centering
+\caption{Quantization-aware fine-tuning of the configurations found at $B=0.25$: test accuracy (\%) before (PTQ) and after three epochs of QAT (STE, network kept quantized), mean $\pm$ std over three configurations per method (search seeds 0--2, chosen without test data; uniform W4A4: three fine-tuning seeds). Last column: ABC-Q better than the method in $k$ of the paired runs pooled over the four tasks, with Holm-corrected two-sided Wilcoxon $p$.}
+\label{tab:qat_multi}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{\begin{tabular}{lccccccccc}
+\toprule
+ & \multicolumn{2}{c}{ResNet-20 / CIFAR-10} & \multicolumn{2}{c}{ResNet-20 / CIFAR-100} & \multicolumn{2}{c}{MobileNetV2 / CIFAR-10} & \multicolumn{2}{c}{MobileNetV2 / CIFAR-100} & \\
+Configuration & PTQ & QAT & PTQ & QAT & PTQ & QAT & PTQ & QAT & ABC-Q better \\
+\midrule
+Uniform W4A4 & 79.73 & 86.73 $\pm$ 0.22 & 41.47 & 55.29 $\pm$ 0.25 & 44.09 & 71.05 $\pm$ 0.26 & 19.63 & 37.15 $\pm$ 0.12 & 12/12 ($p=0.002$) \\
+Fisher-MCKP & 79.83 & 87.50 $\pm$ 0.12 & 25.71 & 54.13 $\pm$ 0.24 & 47.91 & \textbf{71.68 $\pm$ 0.03} & 20.13 & 37.67 $\pm$ 0.14 & 9/12 ($p=0.034$) \\
+GA & 65.66 & 86.24 $\pm$ 1.86 & 35.56 & 54.11 $\pm$ 1.50 & 47.67 & 65.31 $\pm$ 4.44 & 3.14 & 8.93 $\pm$ 10.19 & 11/12 ($p=0.002$) \\
+CMA-ES & 62.82 & 85.58 $\pm$ 0.55 & 15.06 & 51.92 $\pm$ 0.64 & 43.73 & 67.78 $\pm$ 0.41 & 5.17 & 19.80 $\pm$ 8.54 & 12/12 ($p=0.002$) \\
+\textbf{ABC-Q} & 80.05 & \textbf{87.51 $\pm$ 0.07} & 44.03 & \textbf{56.19 $\pm$ 0.16} & 67.48 & 71.64 $\pm$ 0.48 & 24.87 & \textbf{39.01 $\pm$ 0.15} & -- \\
+\bottomrule
+\end{tabular}}
+\end{table*}

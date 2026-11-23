@@ -1,21 +1,21 @@
 \begin{table}[t]
 \centering
-\caption{ImageNet-pretrained CNNs, weights mixed in $\{2,4,8\}$ bits with 8-bit activations (W$\{2,4,8\}$A8). Top-1 accuracy (\%) on 9{,}488 ImageNetV2 test images (512 further images are used for calibration), mean $\pm$ std over 3 seeds. Budgets: MobileNetV2 $B=0.6$, ResNet-18 $B=0.5$ (fraction of W8A8 BOPs).}
+\caption{ImageNet-pretrained CNNs, weights mixed in $\{2,4,8\}$ bits with 8-bit activations (W$\{2,4,8\}$A8). Top-1 accuracy (\%) on 49{,}488 images of the ILSVRC-2012 validation set (the other 512 are used for calibration), mean $\pm$ std over 5 seeds. Budgets: MobileNetV2 $B=0.6$, ResNet-18 $B=0.5$ (fraction of W8A8 BOPs).}
 \label{tab:ext_imagenet}
 \footnotesize
 \resizebox{\linewidth}{!}{\begin{tabular}{lcc}
 \toprule
 Method & MobileNetV2 ($B=0.6$) & ResNet-18 ($B=0.5$) \\
 \midrule
-FP32 & 58.75 & 57.16 \\
-Uniform W8A8 ($B=1.0$) & 57.84 & 57.12 \\
-Uniform W4A8 ($B=0.5$) & 0.20 & \textbf{34.70} \\
+FP32 & 71.53 & 69.84 \\
+Uniform W8A8 ($B=1.0$) & 70.77 & 69.67 \\
+Uniform W4A8 ($B=0.5$) & 0.23 & \textbf{45.19} \\
 \midrule
-Genetic algorithm & 0.13 $\pm$ 0.03 & 0.11 $\pm$ 0.04 \\
-CMA-ES & 0.09 $\pm$ 0.01 & 0.23 $\pm$ 0.16 \\
-Fisher-MCKP (HAWQ-V2-style) & 0.25 & 2.59 \\
-Probe-MCKP (one-shot) & 33.46 & 32.19 \\
-\textbf{ABC-Q (proposed)} & \textbf{38.80 $\pm$ 0.50} & \textbf{34.70 $\pm$ 0.00} \\
+Genetic algorithm & 0.11 $\pm$ 0.02 & 0.12 $\pm$ 0.03 \\
+CMA-ES & 0.13 $\pm$ 0.03 & 11.26 $\pm$ 15.30 \\
+Fisher-MCKP (HAWQ-V2-style) & 0.25 & 3.16 \\
+Probe-MCKP (one-shot) & 42.47 & 41.89 \\
+\textbf{ABC-Q (proposed)} & \textbf{50.79 $\pm$ 0.50} & \textbf{45.19 $\pm$ 0.00} \\
 \bottomrule
 \end{tabular}}
 \end{table}

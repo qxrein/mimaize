@@ -54,9 +54,10 @@ $23.1$ percentage points (MobileNetV2/CIFAR-10). It also outperforms a HAWQ-V2-s
 allocator, and we show that gradient- and Fisher-based sensitivity proxies are only moderately
 correlated with measured damage. An ablation shows that probing, knapsack seeding and the online
 surrogate carry the gains on CIFAR, whereas the colony dynamics add little there, and short
-quantization-aware fine-tuning reduces the differences between allocations to about one percentage
-point. The findings carry over to ImageNet-pretrained CNNs, where every GA, CMA-ES and HAWQ-style
-allocation collapses while ABC-Q keeps a working network, and to weight-only quantization of four
+after quantization-aware fine-tuning the ABC-Q configuration remains more accurate than uniform W4A4 in
+all 12 paired runs. The findings carry over to ImageNet-pretrained CNNs (ILSVRC-2012), where GA, CMA-ES and HAWQ-style
+allocation collapse or become unstable while ABC-Q keeps a working network ($50.8\%$ top-1 for MobileNetV2
+at 60\% of W8A8 BOPs, where even uniform W4A8 at 50\% collapses), and to weight-only quantization of four
 language models (OPT-125M/350M, Qwen2.5-0.5B, Llama-3.2-1B). Combined with GPTQ, ABC-Q gives the best
 3-bit models in every case, reducing WikiText-2 perplexity relative to uniform 3-bit GPTQ by $9$--$53\%$
 (Llama-3.2-1B: $18.84\to14.62$, FP16 $9.75$) and closing up to $85\%$ of the gap to uniform 4-bit GPTQ at
@@ -284,7 +285,8 @@ $N,\ell,K,p_s,\tau,\sigma,\alpha$; Section~\ref{sec:ablation} shows which compon
 
 \paragraph{Models and data.} ResNet-20 \citep{He2016} ($L=22$) and MobileNetV2 \citep{Sandler2018}
 ($L=53$, Keras reference implementation at $32\times32$ input) are trained from scratch on CIFAR-10 and
-CIFAR-100 \citep{Krizhevsky2009} (Adam, cosine schedule, 40 epochs, crop+flip augmentation) on a fixed
+CIFAR-100 \citep{Krizhevsky2009} (Adam, cosine schedule, crop+flip augmentation; 40 epochs, 120 for
+MobileNetV2/CIFAR-100) on a fixed
 split of 49k training, 1k calibration and 10k test images. The calibration set is used for activation
 ranges, probes and fitness; the test set is touched only to report the final configurations.
 
@@ -301,14 +303,17 @@ allocator: $\Omega_i(b)=\mathrm{Tr}(\hat F_i)\,\|Q_b(W_i)-W_i\|_2^2$ with the em
 trace replacing the Hessian trace, solved exactly as an MCKP (one evaluation). \emph{Probe-MCKP} solves
 the MCKP on the measured $\Delta$ (the starting point of ABC-Q without any search).
 
-\paragraph{Statistics.} Stochastic methods are run with ten seeds. Following
+\paragraph{Statistics.} Stochastic methods are run with ten seeds on CIFAR and five on ImageNet and the
+language models (Section~\ref{sec:scaling}); where five seeds per model are too few for a per-model
+test, paired runs are pooled across models. Following
 \citet{Derrac2011} and \citet{Demsar2006} we report a Friedman test across stochastic methods and
 two-sided Wilcoxon signed-rank tests of ABC-Q against each competitor, Holm-corrected
 \citep{Holm1979} within each (model, dataset, budget) family, with the Vargha--Delaney $A_{12}$ effect
 size \citep{Vargha2000}.
 
-\paragraph{Fine-tuning.} For selected methods we take the configuration of the median-calibration
-seed and run two epochs of QAT with STE \citep{Bengio2013STE}: float shadow weights are re-quantized at
+\paragraph{Fine-tuning.} For each method we fine-tune three configurations (those returned by search
+seeds 0--2, i.e.\ chosen without looking at test data; deterministic allocators and uniform W4A4 are
+fine-tuned with three data-order seeds) for three epochs of QAT with STE \citep{Bengio2013STE}: float shadow weights are re-quantized at
 every step, activations stay fake-quantized and BatchNorm statistics are frozen, so the evaluated
 network is genuinely quantized.
 
@@ -357,20 +362,20 @@ models.
 
 \paragraph{(3) ABC-Q is the best or tied-best method in every setting.} It achieves the highest
 calibration accuracy (the search objective) in all eight model/dataset/budget settings, and the highest
-test accuracy in six of them; in the other two it is within $0.1$\,pp of the deterministic Probe-MCKP
-allocation. All $32$ Holm-corrected Wilcoxon tests against the stochastic search baselines ($n=10$
+test accuracy in seven of them; in the eighth (ResNet-20/CIFAR-100, $\beta=0.35$) it is within
+$0.1$\,pp of the deterministic Probe-MCKP allocation. All $32$ Holm-corrected Wilcoxon tests against the stochastic search baselines ($n=10$
 seeds, both budgets) give $p=0.008$, with $A_{12}\ge0.94$. At iso-cost
-with uniform W4A4 it gains $+23.1$\,pp test accuracy on MobileNetV2/CIFAR-10, $+2.6$\,pp on
-ResNet-20/CIFAR-100 and $+0.3$\,pp on ResNet-20/CIFAR-10. It is also far more repeatable than the other
+with uniform W4A4 it gains $+23.1$\,pp test accuracy on MobileNetV2/CIFAR-10, $+5.0$\,pp on
+MobileNetV2/CIFAR-100, $+2.6$\,pp on ResNet-20/CIFAR-100 and $+0.3$\,pp on ResNet-20/CIFAR-10. It is also far more repeatable than the other
 search methods (standard deviation $\le0.8$\,pp; on ResNet-20 all seeds return the same configuration).
 
-\paragraph{(4) The gain over uniform precision depends strongly on the model.} On
-MobileNetV2/CIFAR-100 at $\beta=0.25$, ABC-Q improves calibration accuracy over W4A4 by $3.5$\,pp
-but test accuracy is unchanged ($20.1\%$ vs.\ $20.4\%$): with 100 classes the 1{,}000-image calibration
-set holds only ten images per class and the search partially fits it. Across all runs the calibration
-accuracy of a returned configuration predicts its test accuracy very well (Spearman $\rho\ge0.98$,
-mean gap $0.9$--$1.3$\,pp; Fig.~\ref{fig:gap}), but at the small margins that separate the best
-configurations this noise matters. We recommend larger calibration sets for many-class tasks.
+\paragraph{(4) The gain over uniform precision depends on the architecture.} The heterogeneous
+MobileNetV2, whose depthwise, expansion and projection layers differ greatly in sensitivity, benefits most
+($+23.1$ and $+5.0$\,pp on CIFAR-10 and CIFAR-100), whereas on the homogeneous ResNet-20 mixed
+precision helps less ($+0.3$ and $+2.6$\,pp), because most of its layers tolerate 4 bits about equally
+well. Across all runs the calibration accuracy of a returned configuration predicts its test accuracy
+closely (Spearman $\rho\ge0.97$, mean gap $0.9$--$1.3$\,pp; Fig.~\ref{fig:gap}), so optimising on the
+1{,}000-image calibration set transfers to held-out data.
 
 \begin{figure}[t]
 \centering
@@ -423,10 +428,10 @@ pays off at larger evaluation budgets or on larger networks is an open question.
 
 Table~\ref{tab:sens_corr} tests the assumption behind gradient-prior and HAWQ-style allocation. The
 gradient-magnitude prior correlates only moderately with the measured 2-bit damage
-($\rho=0.35$--$0.61$) and weakly with the 4-bit damage on ResNet-20/CIFAR-100 ($\rho=0.17$); its
+($\rho=0.35$--$0.61$) and weakly with the 4-bit damage on the CIFAR-100 models ($\rho=0.17$ and $0.19$); its
 top-25\% ``sensitive'' set overlaps with the truly most damaging layers in only 33--57\% of cases. The
-Fisher-weighted quantization-error score is similar for 2 bits ($\rho=0.49$--$0.64$) but nearly
-uncorrelated for 4 bits on ResNet-20 ($\rho\in\{-0.08,0.06\}$). This explains both the weak ABC-GP results
+Fisher-weighted quantization-error score is similar for 2 bits ($\rho=0.42$--$0.64$) but nearly
+uncorrelated for 4 bits on three of the four models ($\rho\in\{-0.08,0.03,0.06\}$). This explains both the weak ABC-GP results
 and the inconsistent Fisher-MCKP results: when the ranking of layers is wrong, an exact allocation of a
 wrong objective is still wrong. Measuring the damage directly costs $2L+1$ forward passes and removes
 this source of error.
@@ -446,21 +451,19 @@ compute-heavy positions.
 
 \subsection{Quantization-aware fine-tuning}
 
-\input{tables/qat}
+\input{tables/qat_multi}
 
-Table~\ref{tab:qat} reports test accuracy after two epochs of QAT. QAT recovers most of the
-post-training loss for every configuration and compresses the differences between allocators to
-$\le1.5$\,pp for all methods except CMA-ES and GA on the hardest settings. After QAT, the ABC-Q
-configuration is the best of the five on both ResNet-20 tasks ($87.41\%$ vs.\ $86.35\%$ for uniform
-W4A4 on CIFAR-10; $55.87\%$ vs.\ $55.08\%$ on CIFAR-100) and tied-best on MobileNetV2/CIFAR-100
-($29.48\%$ vs.\ $29.32\%$), whereas on MobileNetV2/CIFAR-10 uniform W4A4 recovers better ($71.15\%$
-vs.\ $69.72\%$); mixed configurations that trade 2-bit layers for 8-bit layers are not always easier to
-fine-tune than uniform 4-bit. The practical message is that ABC-Q is above all a
-\emph{post-training} method: without any gradient-based training it reaches, on MobileNetV2/CIFAR-10,
-$95\%$ of the accuracy that uniform W4A4 attains only after QAT, while with a QAT budget its advantage
-shrinks to about one percentage point in either direction. These QAT results use one configuration per
-method and a short schedule and should be read as indicative; putting fine-tuning inside the search
-loop is the natural next step.
+Table~\ref{tab:qat_multi} reports test accuracy after three epochs of QAT for three configurations per
+method. QAT recovers most of the post-training loss, but the ranking of the allocations persists:
+ABC-Q is the most accurate configuration on ResNet-20/CIFAR-10 ($87.51\%$), ResNet-20/CIFAR-100
+($56.19\%$) and MobileNetV2/CIFAR-100 ($39.01\%$), and within $0.04$\,pp of Fisher-MCKP on
+MobileNetV2/CIFAR-10 ($71.64\%$ vs.\ $71.68\%$). Pooled over the four tasks, the fine-tuned ABC-Q
+configuration is more accurate than fine-tuned uniform W4A4 in all 12 paired runs ($+0.6$ to $+1.9$\,pp,
+Holm-corrected $p=0.002$), than CMA-ES in 12/12 and the GA in 11/12 ($p=0.002$), and than Fisher-MCKP in
+9/12 ($p=0.034$). The searched allocation is therefore not only a post-training solution: it remains the
+better starting point when a short fine-tuning budget is available, while needing no gradient-based
+training at all when it is not (on MobileNetV2/CIFAR-10 its post-training accuracy is $95\%$ of what
+uniform W4A4 reaches only after QAT).
 
 \subsection{Cost}
 
@@ -479,9 +482,10 @@ further settings, implemented in PyTorch with the same evaluator design (cached 
 quantized weights, fake-quantized layer inputs, one forward pass per fitness evaluation).
 
 \paragraph{Setup.} \emph{ImageNet:} publicly released ImageNet-pretrained MobileNetV2 and ResNet-18
-checkpoints \citep{Sandler2018,He2016}, evaluated on ImageNetV2 (matched-frequency) \citep{Recht2019}
-because the original validation images cannot be redistributed; 512 images form the calibration set
-and the remaining 9{,}488 the test set. Weights are mixed in $\{2,4,8\}$ bits with 8-bit activations
+checkpoints \citep{Sandler2018,He2016}, evaluated on the ILSVRC-2012 validation set
+\citep{Russakovsky2015ImageNet}: 512 randomly chosen images form the calibration set and the remaining
+49{,}488 the test set (FP32 top-1: $71.5\%$ and $69.8\%$, matching the published accuracies of these
+checkpoints). Weights are mixed in $\{2,4,8\}$ bits with 8-bit activations
 (W$\{2,4,8\}$A8, the common mixed-precision setting \citep{Yao2021HAWQV3}), so the BOPs cost of layer
 $i$ is $8\,b_i\,\mathrm{MAC}_i$. Naive post-training W4A8 already destroys MobileNetV2 ($0.2\%$
 top-1), so we use $\beta=0.6$ for MobileNetV2 and $\beta=0.5$ (the cost of uniform W4A8) for
@@ -507,7 +511,7 @@ used for calibration, and by zero-shot accuracy on six standard tasks with the l
 the LM Evaluation Harness: ARC-Easy and ARC-Challenge \citep{Clark2018ARC}, HellaSwag \citep{Zellers2019HellaSwag},
 PIQA \citep{Bisk2020PIQA}, WinoGrande \citep{Sakaguchi2020WinoGrande} and BoolQ \citep{Clark2019BoolQ}, using
 the full test or validation sets. The evaluation budget is $E=2L+201$ (probes plus 200 search
-evaluations); because each LLM evaluation is expensive we run GA, CMA-ES and ABC-Q with three seeds and
+evaluations); because each LLM evaluation is expensive we run GA, CMA-ES and ABC-Q with five seeds and
 omit random search and ABC-GP, which were clearly the weakest methods on CIFAR.
 
 \input{tables/ext_llm_gptq}
@@ -522,8 +526,11 @@ latter. The GA, CMA-ES and the HAWQ-style Fisher allocation are not reliable: on
 on Llama-3.2-1B CMA-ES and Fisher-MCKP, and on OPT-350M the GA are \emph{worse} than simply quantizing every layer to 3 bits
 with GPTQ. ABC-Q also improves on its own one-shot knapsack starting point (Probe-MCKP) on every model
 ($1.6$--$7.4\%$ lower perplexity). Table~\ref{tab:ext_llm_gptq_search} shows that ABC-Q is also by far the
-most repeatable search method: its seed-to-seed standard deviation is $0.2$--$0.5$ perplexity points,
-against $2.2$--$15.2$ for the GA and $1.6$--$6.0$ for CMA-ES.
+most repeatable search method: over five seeds its standard deviation is $0.2$--$0.5$ perplexity points,
+against $1.6$--$12.1$ for the GA and $1.2$--$4.5$ for CMA-ES. ABC-Q returns a lower-perplexity
+configuration than the GA and than CMA-ES in all 20 paired runs (4 models $\times$ 5 seeds) of both the
+GPTQ-aware and the round-to-nearest search (two-sided Wilcoxon signed-rank test on log-perplexity pooled
+over models, Holm-corrected $p<10^{-5}$; Vargha--Delaney $A_{12}=1.00$ on every model).
 
 \input{tables/ext_llm_gptq_search}
 
@@ -573,7 +580,7 @@ OPT-125M.)
 \paragraph{LLMs: controlled allocation study with round-to-nearest.} Table~\ref{tab:ext_llm} isolates the
 effect of the allocation by using the simplest quantizer for every layer. The ranking is the same and the
 differences are larger: at $3.0$ bits per parameter ABC-Q reduces perplexity relative to uniform 3-bit RTN by
-$2.8\times$ on OPT-125M, $3.7\times$ on OPT-350M, $1.9\times$ on Qwen2.5-0.5B and $9.2\times$ on
+$2.7\times$ on OPT-125M, $3.7\times$ on OPT-350M, $1.9\times$ on Qwen2.5-0.5B and $9.2\times$ on
 Llama-3.2-1B, and improves on Probe-MCKP by $11$--$23\%$. Comparing the two tables shows that allocation and
 rounding are complementary: GPTQ alone (uniform 3-bit) and ABC-Q alone (RTN) each help substantially, and
 their combination gives the best 3-bit models, e.g.\ $14.62$ on Llama-3.2-1B against $225.88$ for uniform
@@ -582,32 +589,31 @@ their combination gives the best 3-bit models, e.g.\ $14.62$ on Llama-3.2-1B aga
 \input{tables/ext_imagenet}
 
 \paragraph{ImageNet.} Table~\ref{tab:ext_imagenet} confirms the CIFAR picture under a much harsher
-regime. On both pretrained CNNs every GA and CMA-ES run, and the Fisher-MCKP allocation, collapses to
-below $3\%$ top-1: almost any configuration that places 2-bit weights in a sensitive layer destroys the
-network, and unguided search under a hard budget does not escape this region. ABC-Q is the only search
-method that returns a working network: on MobileNetV2 at $\beta=0.6$ it reaches $38.8\%$ top-1 ($+5.3$\,pp
-over its Probe-MCKP starting point), and on ResNet-18 at the cost of uniform W4A8 it recovers exactly the
-uniform W4A8 configuration ($34.7\%$) in all seeds, i.e.\ it finds no mixed configuration that beats
-uniform precision at this budget. Table~\ref{tab:ext_sweep} shows why one-shot curvature-style
-allocation is fragile: across budgets the Fisher-weighted score collapses MobileNetV2 up to
-$\beta=0.7$, whereas measured probes keep the network functional from $\beta=0.6$ upwards.
+regime. On MobileNetV2 every GA and CMA-ES run and the Fisher-MCKP allocation collapse to below $0.3\%$
+top-1, as does uniform W4A8: almost any configuration that places low-precision weights in a sensitive
+layer destroys this network, and unguided search under a hard budget does not escape that region.
+ABC-Q is the only search method that returns a working network: at $\beta=0.6$ it reaches
+$50.8\%\pm0.5\%$ top-1 over five seeds, $8.3$\,pp above its Probe-MCKP starting point. On ResNet-18 the GA
+collapses in every seed, CMA-ES is highly unstable ($11.3\%\pm15.3\%$) and Fisher-MCKP reaches $3.2\%$;
+ABC-Q recovers exactly the uniform W4A8 configuration ($45.2\%$) in all five seeds, i.e.\ at this budget
+no mixed configuration it explores beats uniform precision on this homogeneous network, but it is the
+only allocator that reliably matches it. Table~\ref{tab:ext_sweep} shows why one-shot curvature-style
+allocation is fragile: the Fisher-weighted score collapses MobileNetV2 up to $\beta=0.7$ ($3.6\%$),
+whereas measured probes keep it functional from $\beta=0.6$ upwards ($42.5\%$ at $0.6$, $61.2\%$ at
+$0.7$).
 
 \input{tables/ext_sweep}
 
 \subsection{Limitations}
 \begin{itemize}
 \item \textbf{Model scale.} The language models range from 125M to 1.2B parameters and the CNNs are compact
-      (ResNet-20/18, MobileNetV2); the CIFAR backbones are trained for 40 epochs (MobileNetV2/CIFAR-100
-      reaches only $35.9\%$), and ImageNet results use ImageNetV2 rather than the original validation set.
+      (ResNet-20/18, MobileNetV2).
 \item \textbf{Simulated quantization.} Quantization is simulated (fake-quantized weights and activations,
       no BatchNorm folding), and cost is measured by BOPs or bits per weight; we do not report latency,
       energy or packed-model memory on a specific accelerator, which could rank configurations differently.
 \item \textbf{Role of the colony.} On CIFAR a single-source surrogate-guided search performs as well as
       the full colony at $E=300$; the colony's search adds a clear benefit over its one-shot starting
-      point only in the larger language-model search spaces.
-\item \textbf{Seeds and fine-tuning.} CIFAR comparisons use ten seeds, the ImageNet and language-model
-      experiments three; QAT uses one configuration per method and two epochs, after which the
-      differences between allocations shrink to about one percentage point on CIFAR.
+      point in the larger ImageNet and language-model search spaces (e.g.\ $+8.3$\,pp on MobileNetV2/ImageNet).
 \end{itemize}
 
 %% ===================================================================================
@@ -622,12 +628,13 @@ best or tied-best method in all settings, with large gains on the heterogeneous 
 ($+23$\,pp test accuracy over uniform W4A4 at equal cost on CIFAR-10) and small gains on the homogeneous
 ResNet-20. The ablation shows that probes, knapsack seeding and the online surrogate, rather than the
 colony dynamics, carry the improvement, and the QAT experiment shows that the advantage is largest in
-the post-training setting and shrinks to about one percentage point after fine-tuning. We also found that a gradient-magnitude prior and a
+the post-training setting and persists after fine-tuning (12 of 12 paired runs better than uniform
+W4A4). We also found that a gradient-magnitude prior and a
 Fisher-weighted HAWQ-style score are only moderately correlated with measured damage.
 
 The same conclusions hold at larger scale. On ImageNet-pretrained CNNs, generic search and HAWQ-style
-allocation collapse under a tight budget while ABC-Q keeps a working network (although on ResNet-18 it
-only matches uniform W4A8). On four language models from 125M to 1.2B parameters, ABC-Q combined with
+allocation collapse or become unstable under a tight budget while ABC-Q keeps a working network
+($50.8\%$ for MobileNetV2; on ResNet-18 it matches uniform W4A8). On four language models from 125M to 1.2B parameters, ABC-Q combined with
 GPTQ produces the best 3-bit models in every case ($9$--$53\%$ lower perplexity than uniform 3-bit GPTQ),
 and there, unlike on CIFAR, the population search adds a consistent improvement over its one-shot knapsack
 starting point; the improvements hold on C4 and in zero-shot accuracy on six downstream tasks

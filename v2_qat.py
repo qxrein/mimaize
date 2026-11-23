@@ -30,6 +30,8 @@ ap.add_argument("--epochs", type=int, default=2)
 ap.add_argument("--lr", type=float, default=1e-4)
 ap.add_argument("--methods", nargs="+", default=["uniform4", "cmaes", "ga", "fisher_mckp", "abc_v2"])
 ap.add_argument("--device", default="gpu", choices=["gpu", "cpu"])
+ap.add_argument("--seeds", type=int, nargs="*", default=None,
+                help="multi-configuration mode: QAT the configuration of each listed search seed (uniform4: fine-tuning seed); results -> qat_B<budget>_multi.json")
 args = ap.parse_args()
 
 import numpy as np
@@ -91,10 +93,21 @@ def main() -> None:
     x_tr = normalize(data["x_train"])
     y_tr = data["y_train"].astype(np.int64)
     chosen = pick_configs()
-    results_path = os.path.join(OUT, f"qat_B{int(round(args.budget * 1000)):03d}.json")
+    multi = args.seeds is not None and len(args.seeds) > 0
+    suffix = "_multi" if multi else ""
+    results_path = os.path.join(OUT, f"qat_B{int(round(args.budget * 1000)):03d}{suffix}.json")
     results = json.load(open(results_path)) if os.path.exists(results_path) else {}
-    for m in args.methods:
-        if m in results:
+    by_seed = {}
+    if multi:
+        with open(os.path.join(OUT, "runs.jsonl")) as f:
+            for line in f:
+                r = json.loads(line)
+                if abs(r["budget"] - args.budget) < 1e-6 and r.get("config") is not None:
+                    by_seed[(r["method"], r["seed"])] = r
+    jobs = [(m, sd) for m in args.methods for sd in (args.seeds if multi else [None])]
+    for m, qseed in jobs:
+        key = m if qseed is None else f"{m}|s{qseed}"
+        if key in results:
             continue
         model = q.build_model()
         model.load_weights(os.path.join(OUT, "float.weights.h5"))
@@ -102,6 +115,14 @@ def main() -> None:
         if m == "uniform4":
             bits = np.full(ev.L, 4, dtype=np.int64)
             src = {"seed": None, "calib_acc": None}
+        elif qseed is not None:
+            if (m, qseed) not in by_seed and (m, 0) in by_seed and m.endswith("mckp"):
+                src = by_seed[(m, 0)]  # deterministic allocator: same configuration, different fine-tuning seed
+            elif (m, qseed) not in by_seed:
+                continue
+            else:
+                src = by_seed[(m, qseed)]
+            bits = np.array(src["config"], dtype=np.int64)
         else:
             if m not in chosen:
                 continue
@@ -131,7 +152,7 @@ def main() -> None:
             opt.apply_gradients(zip(g, shadows + others))
             return loss
 
-        rng = np.random.RandomState(0)
+        rng = np.random.RandomState(0 if qseed is None else 100 + qseed)
         t0 = time.time()
         for ep in range(args.epochs):
             xa = augment(x_tr, rng)
@@ -151,10 +172,10 @@ def main() -> None:
         on_grid = all(np.allclose(ev.kernel_vars[i].numpy(),
                                   tf_quant_kernel(ev.kernel_vars[i], bl[i], ev.types[i]).numpy(), atol=1e-6)
                       for i in range(ev.L))
-        results[m] = {"seed": src.get("seed"), "search_calib": src.get("calib_acc"), "ptq_test": ptq_test,
+        results[key] = {"method": m, "qat_seed": qseed, "seed": src.get("seed"), "search_calib": src.get("calib_acc"), "ptq_test": ptq_test,
                       "qat_test": qat_test, "epochs": args.epochs, "bops": ev.bops_ratio(bits),
                       "weights_on_grid": bool(on_grid), "wall_s": time.time() - t0}
-        print(m, results[m], flush=True)
+        print(key, results[key], flush=True)
         with open(results_path, "w") as f:
             json.dump(results, f, indent=2)
         tf.keras.backend.clear_session()

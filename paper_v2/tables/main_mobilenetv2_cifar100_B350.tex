@@ -1,20 +1,20 @@
 \begin{table}[t]
 \centering
-\caption{MobileNetV2 / CIFAR-100, BOPs budget $B=0.35$ (fraction of W8A8), $E=300$ evaluations, $n=10$ seeds. Float test accuracy 35.91\%. Calib./test: PTQ accuracy (no fine-tuning) on the 1k calibration and 10k test sets. $p$: Holm-corrected two-sided Wilcoxon vs.\ ABC-Q on calibration accuracy; $A_{12}$: Vargha--Delaney effect size (probability that ABC-Q is better). Friedman $p=3.1e-07$.}
+\caption{MobileNetV2 / CIFAR-100, BOPs budget $B=0.35$ (fraction of W8A8), $E=300$ evaluations, $n=10$ seeds. Float test accuracy 48.90\%. Calib./test: PTQ accuracy (no fine-tuning) on the 1k calibration and 10k test sets. $p$: Holm-corrected two-sided Wilcoxon vs.\ ABC-Q on calibration accuracy; $A_{12}$: Vargha--Delaney effect size (probability that ABC-Q is better). Friedman $p=2e-07$.}
 \label{tab:main_mobilenetv2_cifar100_B350}
 \footnotesize\setlength{\tabcolsep}{3.5pt}
 \resizebox{\linewidth}{!}{\begin{tabular}{lcccccc}
 \toprule
 Method & Calib.\ acc.\ (\%) & Test acc.\ (\%) & BOPs & Bits/param & $p$ & $A_{12}$ \\
 \midrule
-Uniform W4A4 & 18.80 & 20.44 & 0.250 & 4.00 & -- & -- \\
-Random search & 5.06 $\pm$ 0.78 & 4.39 $\pm$ 1.14 & 0.336 & 4.06 & 0.008 & 1.00 \\
-Genetic algorithm & 17.07 $\pm$ 3.05 & 15.68 $\pm$ 3.12 & 0.333 & 4.03 & 0.008 & 1.00 \\
-CMA-ES & 15.55 $\pm$ 2.92 & 14.92 $\pm$ 3.35 & 0.344 & 4.01 & 0.008 & 1.00 \\
-ABC-GP (gradient prior) & 9.08 $\pm$ 3.92 & 7.86 $\pm$ 4.00 & 0.335 & 3.94 & 0.008 & 1.00 \\
-Fisher-MCKP (HAWQ-V2-style) & 21.90 & 21.85 & 0.347 & 4.90 & -- & -- \\
-Probe-MCKP (one-shot) & 25.20 & 26.19 & 0.347 & 4.50 & -- & -- \\
-\textbf{ABC-Q (proposed)} & \textbf{27.83 $\pm$ 0.27} & \textbf{26.22 $\pm$ 0.63} & 0.348 & 4.38 & -- & -- \\
+Uniform W4A4 & 19.90 & 19.63 & 0.250 & 4.00 & -- & -- \\
+Random search & 4.49 $\pm$ 1.34 & 3.56 $\pm$ 1.17 & 0.341 & 4.09 & 0.008 & 1.00 \\
+Genetic algorithm & 13.99 $\pm$ 4.08 & 12.39 $\pm$ 4.08 & 0.336 & 4.13 & 0.008 & 1.00 \\
+CMA-ES & 13.58 $\pm$ 1.50 & 13.59 $\pm$ 1.70 & 0.334 & 4.20 & 0.008 & 1.00 \\
+ABC-GP (gradient prior) & 6.54 $\pm$ 2.59 & 5.34 $\pm$ 2.98 & 0.341 & 3.92 & 0.008 & 1.00 \\
+Fisher-MCKP (HAWQ-V2-style) & 28.20 & 30.04 & 0.347 & 5.04 & -- & -- \\
+Probe-MCKP (one-shot) & 31.10 & 32.03 & 0.346 & 4.30 & -- & -- \\
+\textbf{ABC-Q (proposed)} & \textbf{34.23 $\pm$ 0.64} & \textbf{32.61 $\pm$ 0.55} & 0.349 & 4.23 & -- & -- \\
 \bottomrule
 \end{tabular}}
 \end{table}
