@@ -1,0 +1,29 @@
+Loading weights:   0%|          | 0/122 [00:00<?, ?it/s]Loading weights: 100%|██████████| 122/122 [00:00<00:00, 2289.39it/s]
+[stats] L=21 float calib=0.6660 test=0.6984 u2: 0.0020/0.0010 u4: 0.4590/0.4519 u8: 0.6582/0.6967 setup 462s
+[run] B=0.5 ga           seed=0 calib=0.0117 test=0.0014 cost=0.469 wall=175s
+[run] B=0.5 ga           seed=1 calib=0.0078 test=0.0012 cost=0.500 wall=159s
+[run] B=0.5 ga           seed=2 calib=0.0098 test=0.0011 cost=0.463 wall=160s
+[run] B=0.5 ga           seed=3 calib=0.0078 test=0.0008 cost=0.446 wall=164s
+[run] B=0.5 ga           seed=4 calib=0.0098 test=0.0014 cost=0.462 wall=160s
+[run] B=0.5 cmaes        seed=0 calib=0.0566 test=0.0380 cost=0.500 wall=166s
+[run] B=0.5 cmaes        seed=1 calib=0.0059 test=0.0018 cost=0.500 wall=177s
+[run] B=0.5 cmaes        seed=2 calib=0.3672 test=0.3742 cost=0.484 wall=174s
+[run] B=0.5 cmaes        seed=3 calib=0.1367 test=0.1217 cost=0.500 wall=166s
+[run] B=0.5 cmaes        seed=4 calib=0.0391 test=0.0275 cost=0.500 wall=176s
+[run] B=0.5 abc_v2       seed=0 calib=0.4590 test=0.4519 cost=0.500 wall=146s
+[run] B=0.5 abc_v2       seed=1 calib=0.4590 test=0.4519 cost=0.500 wall=154s
+[run] B=0.5 abc_v2       seed=2 calib=0.4590 test=0.4519 cost=0.500 wall=149s
+[run] B=0.5 abc_v2       seed=3 calib=0.4590 test=0.4519 cost=0.500 wall=145s
+[run] B=0.5 abc_v2       seed=4 calib=0.4590 test=0.4519 cost=0.500 wall=144s
+[run] B=0.5 probe_mckp   seed=0 calib=0.4160 test=0.4189 cost=0.499 wall=1s
+[run] B=0.5 fisher_mckp  seed=0 calib=0.0273 test=0.0316 cost=0.498 wall=1s
+Loading weights:   0%|          | 0/122 [00:00<?, ?it/s]Loading weights: 100%|██████████| 122/122 [00:00<00:00, 1819.71it/s]
+[stats] L=21 float calib=0.6660 test=0.6984 u2: 0.0020/0.0010 u4: 0.4590/0.4519 u8: 0.6582/0.6967 setup 11s
+Loading weights:   0%|          | 0/122 [00:00<?, ?it/s]Loading weights: 100%|██████████| 122/122 [00:00<00:00, 1467.39it/s]
+[stats] L=21 float calib=0.6660 test=0.6984 u2: 0.0020/0.0010 u4: 0.4590/0.4519 u8: 0.6582/0.6967 setup 11s
+[run] B=0.4 probe_mckp   seed=0 calib=0.0000 test=0.0011 cost=0.390 wall=1s
+[run] B=0.4 fisher_mckp  seed=0 calib=0.0000 test=0.0016 cost=0.394 wall=1s
+[run] B=0.6 probe_mckp   seed=0 calib=0.5840 test=0.6095 cost=0.598 wall=1s
+[run] B=0.6 fisher_mckp  seed=0 calib=0.4941 test=0.4958 cost=0.598 wall=1s
+[run] B=0.7 probe_mckp   seed=0 calib=0.6172 test=0.6358 cost=0.694 wall=1s
+[run] B=0.7 fisher_mckp  seed=0 calib=0.5117 test=0.5160 cost=0.697 wall=1s

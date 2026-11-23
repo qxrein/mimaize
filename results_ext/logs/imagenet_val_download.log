@@ -1,0 +1,18 @@
+  data/validation-00000-of-00014.parquet: 3572 images so far
+  data/validation-00001-of-00014.parquet: 7144 images so far
+  data/validation-00002-of-00014.parquet: 10716 images so far
+  data/validation-00003-of-00014.parquet: 14288 images so far
+  data/validation-00004-of-00014.parquet: 17860 images so far
+  data/validation-00005-of-00014.parquet: 21432 images so far
+  data/validation-00006-of-00014.parquet: 25003 images so far
+  data/validation-00007-of-00014.parquet: 28574 images so far
+  data/validation-00008-of-00014.parquet: 32145 images so far
+  data/validation-00009-of-00014.parquet: 35716 images so far
+  data/validation-00010-of-00014.parquet: 39287 images so far
+  data/validation-00011-of-00014.parquet: 42858 images so far
+  data/validation-00012-of-00014.parquet: 46429 images so far
+  data/validation-00013-of-00014.parquet: 50000 images so far
+done: /home/sneha/mimaize/ext_data/imagenet_val_224_x.npy labels range 0 999
+cache exists: /home/sneha/mimaize/ext_data/imagenet_val_224_x.npy
+cache exists: /home/sneha/mimaize/ext_data/imagenet_val_224_x.npy
+cache exists: /home/sneha/mimaize/ext_data/imagenet_val_224_x.npy

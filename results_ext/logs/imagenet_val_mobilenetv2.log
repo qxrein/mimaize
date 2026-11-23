@@ -1,0 +1,64 @@
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights: 100%|██████████| 314/314 [00:00<00:00, 3478.64it/s]
+[stats] L=53 float calib=0.6953 test=0.7153 u2: 0.0020/0.0010 u4: 0.0020/0.0023 u8: 0.6895/0.7077 setup 2098s
+[run] B=0.6 ga           seed=0 calib=0.0078 test=0.0010 cost=0.503 wall=789s
+[run] B=0.6 ga           seed=1 calib=0.0078 test=0.0014 cost=0.588 wall=991s
+[run] B=0.6 ga           seed=2 calib=0.0078 test=0.0013 cost=0.539 wall=780s
+[run] B=0.6 ga           seed=3 calib=0.0059 test=0.0010 cost=0.586 wall=773s
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights: 100%|██████████| 314/314 [00:00<00:00, 3150.55it/s]
+[stats] L=53 float calib=0.6953 test=0.7153 u2: 0.0020/0.0010 u4: 0.0020/0.0023 u8: 0.6895/0.7077 setup 11s
+[run] B=0.6 ga           seed=4 calib=0.0078 test=0.0010 cost=0.563 wall=1040s
+[run] B=0.6 cmaes        seed=0 calib=0.0059 test=0.0009 cost=0.523 wall=1097s
+[run] B=0.6 cmaes        seed=1 calib=0.0059 test=0.0013 cost=0.555 wall=1074s
+Traceback (most recent call last):
+  File "/home/sneha/mimaize/ext_run.py", line 442, in <module>
+    main()
+  File "/home/sneha/mimaize/ext_run.py", line 419, in main
+    S.run_cmaes(oracle, L, rng, seed)
+  File "/home/sneha/mimaize/v2_search.py", line 276, in run_cmaes
+    fits.append(-oracle(c))
+                 ^^^^^^^^^
+  File "/home/sneha/mimaize/v2_search.py", line 72, in __call__
+    acc = float(self.acc_fn(cfg))
+                ^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_engine.py", line 145, in score
+    v = float(self.score_fn())
+              ^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sneha/mimaize/ext_run.py", line 126, in calib_score
+    correct += int((logits(xc[s:s + 128]).argmax(1) == yc[s:s + 128]).sum())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: unknown error
+Search for `cudaErrorUnknown' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights:  89%|████████▉ | 281/314 [00:00<00:00, 2790.40it/s]Loading weights: 100%|██████████| 314/314 [00:00<00:00, 2799.16it/s]
+[stats] L=53 float calib=0.6953 test=0.7153 u2: 0.0020/0.0010 u4: 0.0020/0.0023 u8: 0.6895/0.7077 setup 17s
+[run] B=0.7 probe_mckp   seed=0 calib=0.6191 test=0.6121 cost=0.694 wall=4s
+[run] B=0.7 fisher_mckp  seed=0 calib=0.0430 test=0.0357 cost=0.697 wall=4s
+[run] B=0.8 probe_mckp   seed=0 calib=0.6641 test=0.6562 cost=0.790 wall=4s
+[run] B=0.8 fisher_mckp  seed=0 calib=0.5352 test=0.5184 cost=0.792 wall=4s
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights: 100%|██████████| 314/314 [00:00<00:00, 3283.71it/s]
+[stats] L=53 float calib=0.6953 test=0.7153 u2: 0.0020/0.0010 u4: 0.0020/0.0023 u8: 0.6895/0.7077 setup 13s
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights: 100%|██████████| 314/314 [00:00<00:00, 3312.42it/s]
+[stats] L=53 float calib=0.6953 test=0.7153 u2: 0.0020/0.0010 u4: 0.0020/0.0023 u8: 0.6895/0.7077 setup 13s
+[run] B=0.6 cmaes        seed=2 calib=0.0059 test=0.0012 cost=0.578 wall=1009s
+[run] B=0.6 cmaes        seed=3 calib=0.0078 test=0.0017 cost=0.595 wall=1015s
+[run] B=0.6 cmaes        seed=4 calib=0.0059 test=0.0014 cost=0.563 wall=1041s
+[run] B=0.6 abc_v2       seed=0 calib=0.5332 test=0.5059 cost=0.599 wall=667s
+[run] B=0.6 abc_v2       seed=1 calib=0.5332 test=0.5059 cost=0.599 wall=669s
+[run] B=0.6 abc_v2       seed=2 calib=0.5273 test=0.5052 cost=0.598 wall=668s
+[run] B=0.6 abc_v2       seed=3 calib=0.5332 test=0.5059 cost=0.599 wall=667s
+[run] B=0.6 abc_v2       seed=4 calib=0.5254 test=0.5168 cost=0.600 wall=668s
+[run] B=0.6 probe_mckp   seed=0 calib=0.4531 test=0.4247 cost=0.594 wall=4s
+[run] B=0.6 fisher_mckp  seed=0 calib=0.0000 test=0.0025 cost=0.595 wall=3s
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights: 100%|██████████| 314/314 [00:00<00:00, 3245.17it/s]
+[stats] L=53 float calib=0.6953 test=0.7153 u2: 0.0020/0.0010 u4: 0.0020/0.0023 u8: 0.6895/0.7077 setup 13s
+[run] B=0.9 probe_mckp   seed=0 calib=0.6738 test=0.6732 cost=0.826 wall=4s
+[run] B=0.9 fisher_mckp  seed=0 calib=0.6621 test=0.6937 cost=0.890 wall=4s
